@@ -169,9 +169,21 @@ a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .ground h2,.steps h2{font-stretch:70%;font-weight:800;font-size:clamp(1.9rem,4vw,2.8rem);line-height:1;margin:0 0 10px}
 .ground .intro{color:var(--muted);max-width:60ch;margin:0 0 32px}
 .strata{position:relative;--gut:max(20px,calc((100% - 1080px)/2))}
-.layer{position:relative;display:grid;grid-template-columns:200px minmax(0,1fr);gap:0 32px;padding:44px var(--gut) 48px calc(var(--gut) + 28px)}
+.layer{position:relative;display:grid;grid-template-columns:200px minmax(0,1fr) 300px;gap:0 40px;padding:44px var(--gut) 48px calc(var(--gut) + 52px)}
 .layer .name{font-weight:700;font-stretch:85%;font-size:1.05rem;line-height:1.25}
 .layer .name span{display:block;font-weight:400;font-stretch:100%;font-size:.88rem;opacity:.8;margin-top:6px;max-width:22ch}
+.photos{display:grid;gap:14px;align-content:start}
+.photos.n2{grid-template-columns:1fr 1fr;gap:10px}
+.photos figure{margin:0}
+.photos a{display:block;border-radius:3px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.photos img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;transition:transform .3s}
+.photos a:hover img{transform:scale(1.03)}
+.photos figcaption{font-size:.8rem;line-height:1.35;opacity:.8;margin-top:6px}
+.lightbox{border:0;padding:0;background:transparent;max-width:min(92vw,900px);max-height:92vh}
+.lightbox::backdrop{background:rgba(10,20,20,.85)}
+.lightbox img{display:block;max-width:100%;max-height:84vh;width:auto;height:auto;margin:0 auto;border-radius:3px}
+.lightbox p{color:#E6EDEB;text-align:center;margin:10px 0 0;font-size:.95rem}
+.lightbox button{position:fixed;top:14px;right:18px;background:#fff;color:#1D2321;border:0;border-radius:999px;width:40px;height:40px;font-size:1.4rem;line-height:1;cursor:pointer}
 .layer .items{display:grid;gap:30px;max-width:66ch}
 .layer h3{font-stretch:85%;font-weight:800;font-size:1.45rem;line-height:1.15;margin:0 0 8px}
 .layer p{margin:0 0 10px;line-height:1.62}
@@ -190,16 +202,14 @@ a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .watertable{position:relative;height:0;border-top:2px dashed rgba(230,241,241,.6)}
 
 /* Borestang, der følger scroll */
-.probe{position:absolute;top:0;bottom:0;left:calc(var(--gut) + 2px);width:10px;pointer-events:none;z-index:1}
-.probe::before{content:"";position:absolute;inset:0 2px;background:rgba(0,0,0,.10);border-radius:3px}
-.probe i{position:absolute;left:0;top:0;width:10px;height:calc(var(--p,1) * 100%);border-radius:2px;
-  background:
-    repeating-linear-gradient(160deg,transparent 0 5px,rgba(20,24,28,.55) 5px 6.5px,rgba(255,255,255,.35) 6.5px 7.5px,transparent 7.5px 11px),
-    linear-gradient(90deg,#4B535B 0%,#9AA3AC 30%,#D5DADF 45%,#8C959E 65%,#3E454C 100%);
-  box-shadow:0 0 0 1px rgba(0,0,0,.35)}
-.probe i::after{content:"";position:absolute;left:0;bottom:-14px;width:10px;height:14px;
-  background:linear-gradient(90deg,#3E454C,#B7BEC5 45%,#59616A);
-  clip-path:polygon(0 0,100% 0,50% 100%)}
+.probe{position:absolute;top:0;bottom:0;left:calc(var(--gut) - 2px);width:32px;pointer-events:none;z-index:1}
+.probe::before{content:"";position:absolute;inset:0 3px;background:rgba(0,0,0,.12);border-radius:4px}
+.probe i{position:absolute;left:0;top:0;width:32px;height:calc(var(--p,1) * 100%);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='22' viewBox='0 0 32 22'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%232F353B'/%3E%3Cstop offset='.45' stop-color='%238F98A1'/%3E%3Cstop offset='1' stop-color='%232B3136'/%3E%3C/linearGradient%3E%3ClinearGradient id='f' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%234F575F'/%3E%3Cstop offset='.3' stop-color='%23E4E8EC'/%3E%3Cstop offset='.55' stop-color='%23AEB6BE'/%3E%3Cstop offset='1' stop-color='%233F474E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='11' y='0' width='10' height='22' fill='url%28%23s%29'/%3E%3Cpath d='M0 1 L32 9 L32 18 L0 10 Z' fill='url%28%23f%29'/%3E%3Cpath d='M0 10 L32 18 L32 20 L0 12 Z' fill='%231b2024' opacity='.65'/%3E%3Cpath d='M0 1 L32 9 L32 10 L0 2 Z' fill='%23fff' opacity='.35'/%3E%3C/svg%3E");background-repeat:repeat-y;background-size:32px 22px;
+  background-position:0 calc(var(--p,1) * 1800px);filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.probe i::after{content:"";position:absolute;left:1px;bottom:-24px;width:30px;height:24px;
+  background:linear-gradient(90deg,#3E454C,#D3D9DE 42%,#8E979F 62%,#3A4148);
+  clip-path:polygon(0 0,100% 0,62% 70%,50% 100%,38% 70%)}
 
 /* Forløb */
 .steps{padding-block:72px 16px}
@@ -231,10 +241,15 @@ footer{background:var(--water-deep);color:#C9DADA;font-size:.9rem;padding:28px 0
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 
 @media (max-width:1000px){.steps ol{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1060px){.layer{grid-template-columns:180px minmax(0,1fr)}.photos{grid-column:2;grid-template-columns:repeat(2,minmax(0,220px));margin-top:28px}.photos.n1{grid-template-columns:minmax(0,260px)}}
 @media (max-width:760px){
   .top nav{display:none}
   .hero{padding-block:32px 48px}
-  .layer{grid-template-columns:1fr;gap:20px;padding-top:32px;padding-bottom:36px}
+  .layer{grid-template-columns:1fr;gap:20px;padding-top:32px;padding-bottom:36px;padding-left:calc(var(--gut) + 30px)}
+  .probe{left:6px;width:20px}.probe::before{inset:0 2px}
+  .probe i{width:20px;background-size:20px 14px}
+  .probe i::after{left:1px;width:18px;height:16px;bottom:-16px}
+  .photos,.photos.n1{grid-column:auto;margin-top:8px;grid-template-columns:1fr 1fr}
   .steps ol{grid-template-columns:1fr 1fr}
   .about{grid-template-columns:1fr;gap:32px}
   .big{font-size:1.05rem;gap:10px 18px}
@@ -299,6 +314,9 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
             <p>Radon er en radioaktiv gas, der siver op fra undergrunden og kan samle sig i boliger. Den kan hverken ses eller lugtes, så den eneste måde at kende niveauet på er at måle. Måleudstyret står i boligen i en længere periode i fyringssæsonen, og resultatet holdes op mod anbefalingen på 100 Bq/m³.</p>
           </div>
         </div>
+        <div class="photos n1">
+          <figure><a href="img/gulv-proevepunkt-stor.jpg" class="zoom"><img src="img/gulv-proevepunkt.jpg" alt="Prøvepunkt boret i et gulv" width="540" height="720" loading="lazy"></a><figcaption>Prøvepunkt boret i et gulv</figcaption></figure>
+        </div>
       </div>
 
       <div class="surface" aria-hidden="true"></div>
@@ -312,6 +330,9 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
             <p>Jordprøver bruges også ved køb og salg af grunde, ved byggemodning og når der er mistanke om forurening fra tidligere aktiviteter.</p>
           </div>
         </div>
+        <div class="photos n1">
+          <figure><a href="img/udgravning-stor.jpg" class="zoom"><img src="img/udgravning.jpg" alt="Udgravning på en byggeplads" width="540" height="720" loading="lazy"></a><figcaption>Udgravning på en byggeplads</figcaption></figure>
+        </div>
       </div>
 
       <div class="layer l-clay">
@@ -322,6 +343,10 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
             <p>Flygtige stoffer fra fx olie, benzin og klorerede opløsningsmidler fordamper til luften mellem jordkornene og kan trænge op i bygningerne ovenover. Poreluftprøver viser, om forureningen udgør en risiko for indeklimaet.</p>
             <p>Undersøgelsen er relevant på og omkring tidligere tankstationer, renserier, værksteder og industrigrunde.</p>
           </div>
+        </div>
+        <div class="photos n2">
+          <figure><a href="img/poreluft-husmur-stor.jpg" class="zoom"><img src="img/poreluft-husmur.jpg" alt="Poreluftprøver langs en husmur" width="540" height="720" loading="lazy"></a><figcaption>Poreluftprøver langs en husmur</figcaption></figure>
+          <figure><a href="img/poreluft-sokkel-stor.jpg" class="zoom"><img src="img/poreluft-sokkel.jpg" alt="Prøvetagning ved en sokkel" width="540" height="720" loading="lazy"></a><figcaption>Prøvetagning ved en sokkel</figcaption></figure>
         </div>
       </div>
 
@@ -334,6 +359,10 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
             <h3>Grundvandsprøver</h3>
             <p>Vandprøver fra boringer og pejlerør. Vandspejlet pejles, boringen forpumpes, og prøven udtages på de rigtige flasker og holdes kold, så laboratoriet får et retvisende billede af, om forureningen har nået grundvandet – og hvor meget.</p>
           </div>
+        </div>
+        <div class="photos n2">
+          <figure><a href="img/borerig-stor.jpg" class="zoom"><img src="img/borerig.jpg" alt="Borerig etablerer en boring" width="540" height="720" loading="lazy"></a><figcaption>Borerig etablerer en boring</figcaption></figure>
+          <figure><a href="img/boringer-sne-stor.jpg" class="zoom"><img src="img/boringer-sne.jpg" alt="Boringer og pejleudstyr i felten" width="540" height="720" loading="lazy"></a><figcaption>Boringer og pejleudstyr i felten</figcaption></figure>
         </div>
       </div>
     </div>
@@ -398,6 +427,21 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(upd);}},{passive:true});
   window.addEventListener('resize',upd);
   upd();
+})();
+</script>
+<dialog class="lightbox" id="lightbox"><button type="button" aria-label="Luk billede">×</button><img alt=""><p></p></dialog>
+<script>
+(function(){
+  var d=document.getElementById('lightbox'); if(!d||!d.showModal) return;
+  var img=d.querySelector('img'), cap=d.querySelector('p');
+  document.querySelectorAll('.photos a.zoom').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      var t=a.querySelector('img'); img.src=a.href; img.alt=t.alt; cap.textContent=t.alt; d.showModal();
+    });
+  });
+  d.querySelector('button').addEventListener('click',function(){d.close()});
+  d.addEventListener('click',function(e){if(e.target===d)d.close()});
 })();
 </script>
 </body>
