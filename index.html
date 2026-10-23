@@ -105,6 +105,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .years{font-stretch:62%;font-weight:800;font-size:clamp(5rem,14vw,9rem);line-height:.85;color:var(--water);margin:0}
 .years + p{margin-top:8px;color:var(--muted)}
 
+.partner{display:inline-flex;align-items:center;gap:16px;margin:6px 0 18px;padding:12px 18px;background:#fff;border:1px solid var(--line);border-radius:4px;text-decoration:none;color:var(--muted);font-size:.9rem}
+.partner:hover{border-color:#9AA39E}
+.partner img{display:block;width:159px;height:auto}
+
 /* Contact */
 .contact{padding-block:64px 80px;border-top:1px solid var(--line)}
 .contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;margin-top:24px}
@@ -244,7 +248,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     <div>
       <h2 id="om-h">Om firmaet</h2>
       <p>OMPrøvetagning ApS har mere end 30 års erfaring inden for miljøtilsyn, prøvetagning, rapportering og myndighedsgodkendelser.</p>
-      <p>Alle analyser laves i samarbejde med laboratoriet <a href="https://www.eurofins.dk/" target="_blank" rel="noopener">Eurofins</a>.</p>
+      <a class="partner" href="https://www.eurofins.dk/" target="_blank" rel="noopener"><span>Alle analyser udføres i samarbejde med</span><img src="img/eurofins-logo.png" alt="Eurofins" width="159" height="32"></a>
       <p>Firmaet ligger i Aalborg, men opgaverne løses i hele landet – for bygherrer, entreprenører, rådgivere og private.</p>
     </div>
   </section>

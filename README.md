@@ -6,6 +6,7 @@ Statisk hjemmeside for OMPrøvetagning ApS. Repoet er backup; siden lægges op m
 - `index.html` – hele siden (tekst, design og script i én fil)
 - `kontakt.php` – sender kontaktformularen som mail til Ole@Omprovetagning.dk (kræver PHP, virker kun på Simply)
 - `webmail/index.html` – omprovetagning.dk/webmail sender videre til Simplys webmail
+- `img/eurofins-logo.png` – Eurofins-logo (hentet fra eurofins.dk)
 - `favicon.svg`, `robots.txt`
 
 ## Sådan lægges siden op
