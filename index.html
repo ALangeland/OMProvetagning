@@ -190,9 +190,9 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     <div class="contact-grid">
       <dl>
         <dt>Telefon</dt><dd><a href="tel:+4520706569">+45 20 70 65 69</a></dd>
-        <dt>E-mail</dt><dd><a href="mailto:omprovetagning@gmail.com">omprovetagning@gmail.com</a></dd>
+        <dt>E-mail</dt><dd><a href="mailto:Ole@Omprovetagning.dk">Ole@Omprovetagning.dk</a></dd>
         <dt>Adresse</dt><dd>Schleppegrellsgade 5<br>9000 Aalborg<br><a href="https://www.google.com/maps/search/?api=1&amp;query=Schleppegrellsgade+5,+9000+Aalborg" target="_blank" rel="noopener">Vis på kort</a></dd>
-        <dt>CVR</dt><dd>3602268</dd>
+        <dt>CVR</dt><dd><a href="https://cvrapi.dk/virksomhed/dk/omprovetagning-aps/38602268" target="_blank" rel="noopener">38602268</a></dd>
       </dl>
 
       <form id="kontaktform" action="kontakt.php" method="post">
@@ -212,7 +212,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 <footer>
   <div class="wrap">
     <span>OMPrøvetagning ApS, Schleppegrellsgade 5, 9000 Aalborg</span>
-    <span>CVR 3602268</span>
+    <span>CVR <a href="https://cvrapi.dk/virksomhed/dk/omprovetagning-aps/38602268" target="_blank" rel="noopener">38602268</a></span>
   </div>
 </footer>
 
@@ -230,7 +230,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       })
       .catch(function(err){
         s.className='err';
-        s.textContent=(err&&err.message?err.message+' ':'Beskeden kunne ikke sendes. ')+'Ring på 20 70 65 69 eller skriv til omprovetagning@gmail.com.';
+        s.textContent=(err&&err.message?err.message+' ':'Beskeden kunne ikke sendes. ')+'Ring på 20 70 65 69 eller skriv til Ole@Omprovetagning.dk.';
       })
       .finally(function(){b.disabled=false;});
   });

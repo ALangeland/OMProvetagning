@@ -2,7 +2,7 @@
 // Kontaktformular – sender beskeden som mail til firmaets e-mail.
 // Kører på Simply-hostingen (PHP). Virker ikke, hvis siden åbnes direkte fra disken.
 
-$MODTAGER = 'omprovetagning@gmail.com';
+$MODTAGER = 'Ole@Omprovetagning.dk';
 
 header('Content-Type: application/json; charset=utf-8');
 
