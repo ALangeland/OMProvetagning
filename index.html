@@ -131,7 +131,7 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:"Archivo",system-ui,sans-serif;font-stretch:100%;font-size:1.0625rem;line-height:1.6}
 a{color:inherit}
-a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 
 /* Header */
@@ -217,28 +217,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .years{font-stretch:62%;font-weight:800;font-size:clamp(5rem,14vw,9rem);line-height:.85;color:var(--water);margin:0}
 .years + p{margin-top:8px;color:var(--muted)}
 
-.partner{display:inline-flex;align-items:center;gap:16px;margin:6px 0 18px;padding:12px 18px;background:#fff;border:1px solid var(--line);border-radius:4px;text-decoration:none;color:var(--muted);font-size:.9rem}
-.partner:hover{border-color:#9AA39E}
-.partner img{display:block;width:159px;height:auto}
 
 /* Contact */
 .contact{padding-block:64px 80px;border-top:1px solid var(--line)}
-.contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;margin-top:24px}
+.contact-grid{margin-top:28px}
+.big{font-size:1.25rem;gap:14px 32px}
 dl{margin:0;align-content:start;display:grid;grid-template-columns:max-content 1fr;gap:10px 20px}
 dt{color:var(--muted)}
 dd{margin:0;font-weight:600}
 dd a{text-decoration-thickness:1px;text-underline-offset:3px}
-form{display:grid;gap:14px}
-label{display:grid;gap:5px;}
-.lbl{display:block;font-weight:600;font-size:.95rem}
-label .req{font-weight:400;color:var(--muted)}
-input,textarea{font:inherit;padding:11px 12px;border:1px solid #A9B1AC;border-radius:4px;background:#fff;color:var(--ink);width:100%}
-textarea{min-height:150px;resize:vertical}
-.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-button.btn{cursor:pointer;justify-self:start;font:inherit;font-weight:600}
-#status{min-height:1.6em;margin:0;font-weight:600}
-#status.ok{color:#2F6B3A}
-#status.err{color:#9B2C1F}
 
 footer{background:var(--water-deep);color:#C9DADA;font-size:.9rem;padding:28px 0}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
@@ -249,7 +236,8 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   .hero{padding-block:32px 48px}
   .layer{grid-template-columns:1fr;gap:20px;padding-top:32px;padding-bottom:36px}
   .steps ol{grid-template-columns:1fr 1fr}
-  .about,.contact-grid{grid-template-columns:1fr;gap:32px}
+  .about{grid-template-columns:1fr;gap:32px}
+  .big{font-size:1.05rem;gap:10px 18px}
   .about{padding-block:56px 48px}
 }
 </style>
@@ -267,10 +255,10 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 <main>
   <section class="wrap hero">
     <h1>Miljøprøver fra bygning, jord og grundvand</h1>
-    <p>OMPrøvetagning ApS udtager alle former for miljøprøver, får dem analyseret hos Eurofins og tager sig af <strong>tilsyn, rapportering og myndighedsgodkendelser</strong>. Firmaet ligger i Aalborg, men arbejder i hele landet.</p>
+    <p>OMPrøvetagning ApS udtager alle former for miljøprøver og tager sig af <strong>tilsyn, rapportering og myndighedsgodkendelser</strong>. Firmaet ligger i Aalborg, men arbejder i hele landet.</p>
     <div class="actions">
       <a class="btn primary" href="tel:+4520706569">Ring 20 70 65 69</a>
-      <a class="btn ghost" href="#kontakt">Skriv en besked</a>
+      <a class="btn ghost" href="mailto:Ole@Omprovetagning.dk">Send en e-mail</a>
     </div>
     <nav class="tasks" aria-labelledby="tasks-h">
       <h2 id="tasks-h">Hvad skal du i gang med?</h2>
@@ -320,7 +308,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
         <div class="items">
           <div id="jordproever" class="svc">
             <h3>Jordprøver</h3>
-            <p>Jord fra byzone, kortlagte grunde og vejarealer skal som regel analyseres, før den må flyttes. Prøverne udtages efter kommunens regler, analyseres hos Eurofins og bliver grundlaget for, hvordan jorden klassificeres – og hvor den må køres hen.</p>
+            <p>Jord fra byzone, kortlagte grunde og vejarealer skal som regel analyseres, før den må flyttes. Prøverne udtages efter kommunens regler, sendes til analyse på laboratorium og bliver grundlaget for, hvordan jorden klassificeres – og hvor den må køres hen.</p>
             <p>Jordprøver bruges også ved køb og salg af grunde, ved byggemodning og når der er mistanke om forurening fra tidligere aktiviteter.</p>
           </div>
         </div>
@@ -357,7 +345,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     <ol>
       <li><h3>Afklaring</h3><p>Hvad skal undersøges, og hvad skal resultatet bruges til?</p></li>
       <li><h3>Prøvetagning</h3><p>Prøverne udtages på stedet efter gældende vejledninger.</p></li>
-      <li><h3>Analyse</h3><p>Prøverne analyseres for de relevante stoffer hos Eurofins.</p></li>
+      <li><h3>Analyse</h3><p>Prøverne sendes til laboratorium og analyseres for de relevante stoffer.</p></li>
       <li><h3>Rapport</h3><p>Resultaterne samles i en rapport, der kan lægges frem for myndigheder og andre parter.</p></li>
       <li><h3>Anmeldelse og modtager</h3><p>Anmeldelser til kommunen klares, og der aftales, hvor jord og materialer skal modtages.</p></li>
     </ol>
@@ -371,7 +359,6 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     <div>
       <h2 id="om-h">Om firmaet</h2>
       <p>OMPrøvetagning ApS har mere end 30 års erfaring inden for miljøtilsyn, prøvetagning, rapportering og myndighedsgodkendelser.</p>
-      <a class="partner" href="https://www.eurofins.dk/" target="_blank" rel="noopener"><span>Alle analyser udføres i samarbejde med</span><img src="img/eurofins-logo.png" alt="Eurofins" width="159" height="32"></a>
       <p>Firmaet ligger i Aalborg, men opgaverne løses i hele landet – for bygherrer, entreprenører, rådgivere og private.</p>
     </div>
   </section>
@@ -379,23 +366,13 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   <section class="wrap contact" id="kontakt" aria-labelledby="kontakt-h">
     <h2 id="kontakt-h">Kontakt</h2>
     <div class="contact-grid">
-      <dl>
+      <dl class="big">
         <dt>Telefon</dt><dd><a href="tel:+4520706569">+45 20 70 65 69</a></dd>
         <dt>E-mail</dt><dd><a href="mailto:Ole@Omprovetagning.dk">Ole@Omprovetagning.dk</a></dd>
         <dt>Adresse</dt><dd>Schleppegrellsgade 5<br>9000 Aalborg<br><a href="https://www.google.com/maps/search/?api=1&amp;query=Schleppegrellsgade+5,+9000+Aalborg" target="_blank" rel="noopener">Vis på kort</a></dd>
         <dt>CVR</dt><dd><a href="https://cvrapi.dk/virksomhed/dk/omprovetagning-aps/38602268" target="_blank" rel="noopener">38602268</a></dd>
       </dl>
 
-      <form id="kontaktform" action="kontakt.php" method="post">
-        <label><span class="lbl">Navn <span class="req">(skal udfyldes)</span></span><input name="navn" required autocomplete="name"></label>
-        <label><span class="lbl">E-mail <span class="req">(skal udfyldes)</span></span><input name="email" type="email" required autocomplete="email"></label>
-        <label><span class="lbl">Telefon</span><input name="telefon" type="tel" autocomplete="tel"></label>
-        <label><span class="lbl">Emne</span><input name="emne"></label>
-        <label><span class="lbl">Besked <span class="req">(skal udfyldes)</span></span><textarea name="besked" required></textarea></label>
-        <div class="hp" aria-hidden="true"><label><span class="lbl">Lad dette felt være tomt</span><input name="website" tabindex="-1" autocomplete="off"></label></div>
-        <button class="btn primary" type="submit">Send besked</button>
-        <p id="status" role="status"></p>
-      </form>
     </div>
   </section>
 </main>
@@ -407,26 +384,6 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   </div>
 </footer>
 
-<script>
-(function(){
-  var f=document.getElementById('kontaktform'), s=document.getElementById('status');
-  f.addEventListener('submit',function(e){
-    e.preventDefault();
-    var b=f.querySelector('button'); b.disabled=true; s.className=''; s.textContent='Sender …';
-    fetch(f.action,{method:'POST',body:new FormData(f),headers:{'Accept':'application/json'}})
-      .then(function(r){return r.json()})
-      .then(function(d){
-        if(d.ok){s.className='ok';s.textContent='Tak – beskeden er sendt. Du hører fra os hurtigst muligt.';f.reset();}
-        else{throw new Error(d.fejl||'');}
-      })
-      .catch(function(err){
-        s.className='err';
-        s.textContent=(err&&err.message?err.message+' ':'Beskeden kunne ikke sendes. ')+'Ring på 20 70 65 69 eller skriv til Ole@Omprovetagning.dk.';
-      })
-      .finally(function(){b.disabled=false;});
-  });
-})();
-</script>
 <script>
 (function(){
   var st=document.querySelector('.strata'); if(!st) return;
