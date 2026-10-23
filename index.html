@@ -78,10 +78,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .watertable{position:relative;height:0;border-top:2px dashed rgba(230,241,241,.6)}
 
 /* Borestang, der følger scroll */
-.probe{position:absolute;top:0;bottom:0;left:calc(var(--gut) + 4px);width:6px;pointer-events:none;z-index:1}
-.probe::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.08);border-radius:3px}
-.probe i{position:absolute;left:0;top:0;width:6px;height:calc(var(--p,1) * 100%);background:#E8E4DA;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
-.probe i::after{content:"";position:absolute;left:-4px;bottom:-10px;border:7px solid transparent;border-top:10px solid #E8E4DA;border-bottom:0}
+.probe{position:absolute;top:0;bottom:0;left:calc(var(--gut) + 2px);width:10px;pointer-events:none;z-index:1}
+.probe::before{content:"";position:absolute;inset:0 2px;background:rgba(0,0,0,.10);border-radius:3px}
+.probe i{position:absolute;left:0;top:0;width:10px;height:calc(var(--p,1) * 100%);border-radius:2px;
+  background:
+    repeating-linear-gradient(160deg,transparent 0 5px,rgba(20,24,28,.55) 5px 6.5px,rgba(255,255,255,.35) 6.5px 7.5px,transparent 7.5px 11px),
+    linear-gradient(90deg,#4B535B 0%,#9AA3AC 30%,#D5DADF 45%,#8C959E 65%,#3E454C 100%);
+  box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.probe i::after{content:"";position:absolute;left:0;bottom:-14px;width:10px;height:14px;
+  background:linear-gradient(90deg,#3E454C,#B7BEC5 45%,#59616A);
+  clip-path:polygon(0 0,100% 0,50% 100%)}
 
 /* Forløb */
 .steps{padding-block:72px 16px}
