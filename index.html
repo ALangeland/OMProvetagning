@@ -5,6 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OMPrøvetagning ApS – miljøprøvetagning i hele landet</title>
 <meta name="description" content="OMPrøvetagning ApS i Aalborg udtager jord-, grundvands-, poreluft- og skimmelprøver, måler radon og laver bygningsgennemgange. Mere end 30 års erfaring.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="OMPrøvetagning ApS – miljøprøvetagning i hele landet">
+<meta property="og:description" content="Jord-, poreluft-, grundvands- og skimmelprøver, radonmåling og bygningsgennemgang. Mere end 30 års erfaring.">
+<meta property="og:url" content="https://omprovetagning.dk/">
+<meta property="og:locale" content="da_DK">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "LocalBusiness",
+ "@id": "https://omprovetagning.dk/#firma",
+ "name": "OMPrøvetagning ApS",
+ "url": "https://omprovetagning.dk/",
+ "description": "Miljøprøvetagning: jord-, poreluft-, grundvands- og skimmelprøver, radonmåling, bygningsgennemgang og anmeldelser til myndighederne. Mere end 30 års erfaring.",
+ "telephone": "+45 20 70 65 69",
+ "email": "Ole@Omprovetagning.dk",
+ "vatID": "DK38602268",
+ "address": {
+  "@type": "PostalAddress",
+  "streetAddress": "Schleppegrellsgade 5",
+  "postalCode": "9000",
+  "addressLocality": "Aalborg",
+  "addressCountry": "DK"
+ },
+ "areaServed": {
+  "@type": "Country",
+  "name": "Danmark"
+ },
+ "knowsAbout": [
+  "Miljøprøvetagning",
+  "Jordprøver",
+  "Poreluftprøver",
+  "Grundvandsprøver",
+  "Skimmelprøver",
+  "Radonmåling",
+  "Bygningsgennemgang",
+  "Jordflytning"
+ ],
+ "hasOfferCatalog": {
+  "@type": "OfferCatalog",
+  "name": "Ydelser",
+  "itemListElement": [
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Bygningsgennemgang"
+    }
+   },
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Skimmelprøver (Mycometer)"
+    }
+   },
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Radonmåling"
+    }
+   },
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Jordprøver"
+    }
+   },
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Poreluftprøver"
+    }
+   },
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Grundvandsprøver"
+    }
+   },
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Anmeldelser til myndighederne"
+    }
+   },
+   {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Kontakt til jord- og materialemodtager"
+    }
+   }
+  ]
+ }
+}
+</script>
 <link rel="canonical" href="https://omprovetagning.dk/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,6 +152,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .btn.primary:hover{background:var(--water-deep)}
 .btn.ghost{color:var(--water)}
 .btn.ghost:hover{background:#fff}
+
+/* Genveje */
+.tasks{margin-top:44px;max-width:860px}
+.tasks h2{font-size:1rem;font-weight:700;margin:0 0 12px}
+.tasks ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.tasks a{display:block;padding:9px 14px;border:1px solid #A9B1AC;border-radius:999px;text-decoration:none;font-size:.95rem;background:#fff}
+.tasks a:hover{border-color:var(--water);color:var(--water)}
+.svc{scroll-margin-top:24px;border-radius:4px}
+.svc:target{animation:mark 2.4s ease-out 1}
+@keyframes mark{0%,30%{box-shadow:0 0 0 10px rgba(255,255,255,.22);background:rgba(255,255,255,.14)}100%{box-shadow:0 0 0 10px rgba(255,255,255,0);background:transparent}}
+@media (prefers-reduced-motion:reduce){.svc:target{animation:none;outline:2px solid currentColor;outline-offset:8px}}
 
 /* Ground section */
 .ground{margin-top:8px}
@@ -160,6 +272,17 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       <a class="btn primary" href="tel:+4520706569">Ring 20 70 65 69</a>
       <a class="btn ghost" href="#kontakt">Skriv en besked</a>
     </div>
+    <nav class="tasks" aria-labelledby="tasks-h">
+      <h2 id="tasks-h">Hvad skal du i gang med?</h2>
+      <ul>
+        <li><a href="#bygningsgennemgang">Renovering eller nedrivning</a></li>
+        <li><a href="#skimmel">Skimmel eller fugt</a></li>
+        <li><a href="#radon">Radon i boligen</a></li>
+        <li><a href="#jordproever">Jord skal flyttes</a></li>
+        <li><a href="#poreluft">Olietank eller forurenet grund</a></li>
+        <li><a href="#grundvand">Forurening i grundvandet</a></li>
+      </ul>
+    </nav>
   </section>
 
   <section class="ground" id="ydelser" aria-labelledby="ydelser-h">
@@ -174,16 +297,16 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       <div class="layer l-building">
         <div class="name">I bygningen<span>Materialer, overflader og indeluft</span></div>
         <div class="items">
-          <div>
+          <div id="bygningsgennemgang" class="svc">
             <h3>Bygningsgennemgang</h3>
             <p>Før en renovering eller nedrivning skal bygningen screenes for miljøfarlige stoffer som asbest, PCB, bly og andre tungmetaller, PAH og klorparaffiner. Er der mistanke, udtages materialeprøver, så kortlægningen bygger på analyser og ikke på gæt.</p>
             <p class="fact">Screening og kortlægning skal med i anmeldelsen af byggeaffald til kommunen senest to uger før arbejdet går i gang.</p>
           </div>
-          <div>
+          <div id="skimmel" class="svc">
             <h3>Skimmelprøver</h3>
             <p>Ved mistanke om skimmelsvamp – en muggen lugt, fugtskader eller gener hos dem, der bor eller arbejder i bygningen – tages prøver af overflader og luft. OMPrøvetagning er certificeret Mycometer-prøvetager. Metoden giver et målbart tal for, hvor meget skimmel der er, og kan også vise, om en afrensning har virket.</p>
           </div>
-          <div>
+          <div id="radon" class="svc">
             <h3>Radonmåling</h3>
             <p>Radon er en radioaktiv gas, der siver op fra undergrunden og kan samle sig i boliger. Den kan hverken ses eller lugtes, så den eneste måde at kende niveauet på er at måle. Måleudstyret står i boligen i en længere periode i fyringssæsonen, og resultatet holdes op mod anbefalingen på 100 Bq/m³.</p>
           </div>
@@ -195,7 +318,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       <div class="layer l-topsoil">
         <div class="name">I jorden<span>Muld og fyld de øverste meter</span></div>
         <div class="items">
-          <div>
+          <div id="jordproever" class="svc">
             <h3>Jordprøver</h3>
             <p>Jord fra byzone, kortlagte grunde og vejarealer skal som regel analyseres, før den må flyttes. Prøverne udtages efter kommunens regler, analyseres hos Eurofins og bliver grundlaget for, hvordan jorden klassificeres – og hvor den må køres hen.</p>
             <p>Jordprøver bruges også ved køb og salg af grunde, ved byggemodning og når der er mistanke om forurening fra tidligere aktiviteter.</p>
@@ -206,7 +329,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       <div class="layer l-clay">
         <div class="name">Mellem jordkornene<span>Luften i jorden over grundvandet</span></div>
         <div class="items">
-          <div>
+          <div id="poreluft" class="svc">
             <h3>Poreluftprøver</h3>
             <p>Flygtige stoffer fra fx olie, benzin og klorerede opløsningsmidler fordamper til luften mellem jordkornene og kan trænge op i bygningerne ovenover. Poreluftprøver viser, om forureningen udgør en risiko for indeklimaet.</p>
             <p>Undersøgelsen er relevant på og omkring tidligere tankstationer, renserier, værksteder og industrigrunde.</p>
@@ -219,7 +342,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
       <div class="layer l-water">
         <div class="name">I grundvandet<span>Under vandspejlet</span></div>
         <div class="items">
-          <div>
+          <div id="grundvand" class="svc">
             <h3>Grundvandsprøver</h3>
             <p>Vandprøver fra boringer og pejlerør. Vandspejlet pejles, boringen forpumpes, og prøven udtages på de rigtige flasker og holdes kold, så laboratoriet får et retvisende billede af, om forureningen har nået grundvandet – og hvor meget.</p>
           </div>

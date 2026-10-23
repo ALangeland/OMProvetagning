@@ -7,9 +7,13 @@ Statisk hjemmeside for OMPrøvetagning ApS. Repoet er backup; siden lægges op m
 - `kontakt.php` – sender kontaktformularen som mail til Ole@Omprovetagning.dk (kræver PHP, virker kun på Simply)
 - `webmail/index.html` – omprovetagning.dk/webmail sender videre til Simplys webmail
 - `img/eurofins-logo.png` – Eurofins-logo (hentet fra eurofins.dk)
-- `favicon.svg`, `robots.txt`
+- `.htaccess` – tvinger https og fjerner www, sender gamle WordPress-adresser til forsiden, viser 404-siden
+- `404.html` – fejlside, når en adresse ikke findes
+- `sitemap.xml`, `robots.txt` – til Google
+- `favicon.svg`
 
 ## Sådan lægges siden op
 1. Log ind på Simply → Filhåndtering (eller FTP).
-2. Upload filerne til mappen `public_html`.
+2. Upload filerne og mapperne (`img`, `webmail`) til mappen `public_html`.
+   `.htaccess` starter med punktum og kan være skjult i Windows – sørg for at den kommer med.
 3. Slet evt. gamle WordPress-filer i samme mappe.

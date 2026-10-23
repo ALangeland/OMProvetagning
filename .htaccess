@@ -1,0 +1,20 @@
+# OMPrøvetagning – opsætning til Simply (Apache)
+
+RewriteEngine On
+
+# 1) Altid https og uden www  ->  https://omprovetagning.dk/...
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^(.*)$ https://omprovetagning.dk/$1 [R=301,L]
+
+# 2) Gamle WordPress-adresser sendes til forsiden
+RewriteRule ^(wp-admin|wp-content|wp-includes|wp-json|feed|comments|category|tag|author|page|kontakt|contact)(/.*)?$ / [R=301,L,QSD]
+RewriteRule ^(wp-login\.php|xmlrpc\.php|wp-cron\.php|index\.php/.*)$ / [R=301,L,QSD]
+RewriteCond %{QUERY_STRING} (^|&)(p|page_id|cat|s|feed|author)= [NC]
+RewriteRule ^(index\.php)?$ / [R=301,L,QSD]
+
+# 3) Pæn fejlside
+ErrorDocument 404 /404.html
+
+# 4) Skjul mappeoversigter
+Options -Indexes
