@@ -10,8 +10,9 @@ Statisk hjemmeside for OMPrøvetagning ApS. Repoet er backup; siden lægges op m
 - `sitemap.xml`, `robots.txt` – til Google
 - `favicon.svg`
 
-## Sådan lægges siden op
-1. Log ind på Simply → Filhåndtering (eller FTP).
-2. Upload filerne og mappen `webmail` til mappen `public_html`.
-   `.htaccess` starter med punktum og kan være skjult i Windows – sørg for at den kommer med.
-3. Slet evt. gamle WordPress-filer i samme mappe.
+## Sådan kommer siden op hos Simply
+Det sker automatisk: Hver gang der gemmes på `main`, uploader GitHub Actions (`.github/workflows/deploy.yml`) filerne til `public_html` hos Simply via FTPS.
+
+- Kræver hemmelighederne `FTP_USERNAME` og `FTP_PASSWORD` under Settings → Secrets and variables → Actions.
+- Kan også startes i hånden: fanen Actions → "Upload til Simply" → Run workflow.
+- Filer, der slettes i repoet, bliver ikke altid slettet hos Simply – slet dem i Simplys filhåndtering.
