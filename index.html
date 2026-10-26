@@ -143,6 +143,18 @@ a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
 /* Hero */
 .hero{padding-block:56px 64px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);grid-template-areas:"text photo" "tasks photo";column-gap:56px;align-items:start}
+.hero-text{grid-area:text}
+.hero .tasks{grid-area:tasks}
+.hero-photo{grid-area:photo;margin:8px 0 0}
+.hero-photo a{display:block;border-radius:4px;overflow:hidden;box-shadow:0 18px 40px -18px rgba(29,35,33,.45)}
+.hero-photo img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
+.hero-photo figcaption{font-size:.85rem;color:var(--muted);margin-top:8px}
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;grid-template-areas:"text" "photo" "tasks"}
+  .hero-photo{margin-top:32px;max-width:440px}
+  .hero-photo img{aspect-ratio:4/5;object-position:50% 35%}
+}
 .hero h1{font-stretch:70%;font-weight:800;font-size:clamp(2.6rem,7.5vw,5.6rem);line-height:.95;letter-spacing:-.02em;margin:0 0 28px;max-width:14ch}
 .hero p{font-size:1.2rem;max-width:56ch;margin:0 0 28px;color:var(--muted)}
 .hero p strong{color:var(--ink);font-weight:600}
@@ -269,12 +281,18 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 
 <main>
   <section class="wrap hero">
+    <div class="hero-text">
     <h1>Miljøprøver fra bygning, jord og grundvand</h1>
     <p>OMPrøvetagning ApS udtager alle former for miljøprøver og tager sig af <strong>tilsyn, rapportering og myndighedsgodkendelser</strong>. Firmaet ligger i Aalborg, men arbejder i hele landet.</p>
     <div class="actions">
       <a class="btn primary" href="tel:+4520706569">Ring 20 70 65 69</a>
       <a class="btn ghost" href="mailto:ole@omprovetagning.dk">Send en e-mail</a>
     </div>
+    </div>
+    <figure class="hero-photo">
+      <a href="img/ole-snegleboret-stor.jpg" class="zoom"><img src="img/ole-snegleboret.jpg" alt="Ole i felten ved et snegleboret på en forurenet grund" width="720" height="960"></a>
+      <figcaption>Ole i felten ved snegleboret</figcaption>
+    </figure>
     <nav class="tasks" aria-labelledby="tasks-h">
       <h2 id="tasks-h">Hvad skal du i gang med?</h2>
       <ul>
@@ -437,7 +455,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 (function(){
   var d=document.getElementById('lightbox'); if(!d||!d.showModal) return;
   var img=d.querySelector('img'), cap=d.querySelector('p');
-  document.querySelectorAll('.photos a.zoom').forEach(function(a){
+  document.querySelectorAll('.photos a.zoom, .hero-photo a.zoom').forEach(function(a){
     a.addEventListener('click',function(e){
       e.preventDefault();
       var t=a.querySelector('img'); img.src=a.href; img.alt=t.alt; cap.textContent=t.alt; d.showModal();
