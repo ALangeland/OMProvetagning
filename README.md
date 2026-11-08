@@ -12,6 +12,8 @@ Statisk hjemmeside for OMPrøvetagning ApS. Repoet er backup; siden lægges op m
 - `el/` – privat webapp "Elpris" (omprovetagning.dk/el) med elpris, opladningspris og sammenligning af elselskaber. Ikke linket fra forsiden og skjult for Google (`noindex` og `Disallow: /el/` i `robots.txt`).
   - `el/index.html` – hele appen. Henter priser live i browseren fra elpriser.org (Energi Data Service) og elselskabernes priser fra Strømligning.
   - `el/manifest.webmanifest`, `el/sw.js`, `el/*.png`, `el/icon.svg` – gør appen installerbar på telefonens hjemmeskærm og åbningsbar uden forbindelse.
+  - `el/img/` – illustrationer (hero, bil, motorcykel, hund) i WebP. Appen virker også, hvis et billede mangler.
+  - `el/fonts/` – skrifttypen Barlow Condensed (SIL Open Font License), lagt lokalt så der ikke hentes noget fra Google.
   - Strømlignings data er gratis til ikke-kommerciel brug mod synlig kreditering (står i appen). Skal appen bruges erhvervsmæssigt, skal der indgås aftale med info@stromligning.dk.
 
 ## Sådan lægges siden op
