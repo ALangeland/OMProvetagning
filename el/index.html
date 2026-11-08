@@ -6,7 +6,7 @@
 <title>Elpris</title>
 <meta name="description" content="Elprisen i Aalborg lige nu, i dag og i morgen, pris for opladning af elbil og sammenligning af elselskaber.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0a6a55">
+<meta name="theme-color" content="#26382a">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -15,25 +15,36 @@
 <meta name="apple-mobile-web-app-title" content="Elpris">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
-/* Layout: en smal kolonne, telefon først. Stor aktuel pris øverst, faner til pris, opladning og leverandører. */
+@font-face{font-family:"Barlow Condensed";font-weight:600;font-style:normal;font-display:swap;src:url(fonts/barlow-condensed-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:700;font-style:normal;font-display:swap;src:url(fonts/barlow-condensed-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-weight:700;font-style:italic;font-display:swap;src:url(fonts/barlow-condensed-latin-700-italic.woff2) format("woff2")}
+/* Tema: Rosso & Loden. Dagkørsel (lys) og natkørsel (mørk, som et instrumentpanel).
+   Layout: loden-banner med hundetand-kant, speedometer til prisen, kort med læder-syninger. */
 :root{
-  --bg:#f1f4f1; --surface:#ffffff; --fg:#13201a; --muted:#53635a; --line:#d4dcd6;
-  --accent:#0a6a55; --accent-fg:#ffffff; --good:#23794a; --mid:#9fada5; --bad:#bf3f27;
-  --warn-bg:#fff2d3; --warn-fg:#654500; --chip:#e3eae5;
+  --bg:#e6e9e1; --surface:#f8f7f2; --fg:#1c2119; --muted:#566055; --line:#cdd2c5;
+  --loden:#26382a; --loden-fg:#f1efe6; --hound-a:#1b291e; --hound-b:#3c5642;
+  --accent:#b3121b; --accent-fg:#ffffff; --stitch:#a9733c;
+  --good:#2b7a3d; --mid:#9a9d8a; --bad:#b3121b;
+  --warn-bg:#fff0cf; --warn-fg:#654500; --chip:#dbe0d2;
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --display:"Barlow Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0e1612; --surface:#17231d; --fg:#e8f0ea; --muted:#9db2a6; --line:#2a3b32;
-    --accent:#4fd1ac; --accent-fg:#04231b; --good:#4cc185; --mid:#5a6c62; --bad:#ff7d5e;
-    --warn-bg:#3a2f12; --warn-fg:#f0d080; --chip:#22332a; color-scheme:dark;
+    --bg:#0d110e; --surface:#151b16; --fg:#ece8dc; --muted:#a2aa9c; --line:#26302a;
+    --loden:#16211a; --loden-fg:#ece8dc; --hound-a:#0f1812; --hound-b:#233629;
+    --accent:#ff5047; --accent-fg:#1c0707; --stitch:#c58b4e;
+    --good:#5fd37e; --mid:#566159; --bad:#ff6a5e;
+    --warn-bg:#3a2f12; --warn-fg:#f0d080; --chip:#1f2923; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0e1612; --surface:#17231d; --fg:#e8f0ea; --muted:#9db2a6; --line:#2a3b32;
-  --accent:#4fd1ac; --accent-fg:#04231b; --good:#4cc185; --mid:#5a6c62; --bad:#ff7d5e;
-  --warn-bg:#3a2f12; --warn-fg:#f0d080; --chip:#22332a; color-scheme:dark;
+  --bg:#0d110e; --surface:#151b16; --fg:#ece8dc; --muted:#a2aa9c; --line:#26302a;
+  --loden:#16211a; --loden-fg:#ece8dc; --hound-a:#0f1812; --hound-b:#233629;
+  --accent:#ff5047; --accent-fg:#1c0707; --stitch:#c58b4e;
+  --good:#5fd37e; --mid:#566159; --bad:#ff6a5e;
+  --warn-bg:#3a2f12; --warn-fg:#f0d080; --chip:#1f2923; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -41,31 +52,43 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-
   padding-block:max(14px,env(safe-area-inset-top,0px)) calc(40px + env(safe-area-inset-bottom,0px));
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
 .wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
-h1{font-size:22px;margin:0;font-weight:700;letter-spacing:-.01em}
-h2{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+h2{font:600 15px var(--display);margin:0 0 8px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;min-height:0}
+.chead h2{margin:0}
+.spot{height:60px;width:auto;max-width:48%;object-fit:contain;pointer-events:none;flex:0 0 auto}
+.hero{background:var(--loden);color:var(--loden-fg);border-radius:16px;overflow:hidden}
+.hound{height:12px;background:var(--hound-a);position:relative}
+.hound::after{content:"";position:absolute;inset:0;background:var(--hound-b);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='black'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='2' y='0' width='2' height='2'/%3E%3Crect x='4' y='0' width='2' height='2'/%3E%3Crect x='6' y='0' width='2' height='2'/%3E%3Crect x='12' y='0' width='2' height='2'/%3E%3Crect x='14' y='0' width='2' height='2'/%3E%3Crect x='0' y='2' width='2' height='2'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='4' y='2' width='2' height='2'/%3E%3Crect x='6' y='2' width='2' height='2'/%3E%3Crect x='8' y='2' width='2' height='2'/%3E%3Crect x='14' y='2' width='2' height='2'/%3E%3Crect x='0' y='4' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3Crect x='6' y='4' width='2' height='2'/%3E%3Crect x='8' y='4' width='2' height='2'/%3E%3Crect x='10' y='4' width='2' height='2'/%3E%3Crect x='0' y='6' width='2' height='2'/%3E%3Crect x='2' y='6' width='2' height='2'/%3E%3Crect x='4' y='6' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3Crect x='10' y='6' width='2' height='2'/%3E%3Crect x='12' y='6' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='2' y='8' width='2' height='2'/%3E%3Crect x='2' y='10' width='2' height='2'/%3E%3Crect x='4' y='10' width='2' height='2'/%3E%3Crect x='4' y='12' width='2' height='2'/%3E%3Crect x='6' y='12' width='2' height='2'/%3E%3Crect x='0' y='14' width='2' height='2'/%3E%3Crect x='6' y='14' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 0 0/16px 16px repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='black'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='2' y='0' width='2' height='2'/%3E%3Crect x='4' y='0' width='2' height='2'/%3E%3Crect x='6' y='0' width='2' height='2'/%3E%3Crect x='12' y='0' width='2' height='2'/%3E%3Crect x='14' y='0' width='2' height='2'/%3E%3Crect x='0' y='2' width='2' height='2'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='4' y='2' width='2' height='2'/%3E%3Crect x='6' y='2' width='2' height='2'/%3E%3Crect x='8' y='2' width='2' height='2'/%3E%3Crect x='14' y='2' width='2' height='2'/%3E%3Crect x='0' y='4' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3Crect x='6' y='4' width='2' height='2'/%3E%3Crect x='8' y='4' width='2' height='2'/%3E%3Crect x='10' y='4' width='2' height='2'/%3E%3Crect x='0' y='6' width='2' height='2'/%3E%3Crect x='2' y='6' width='2' height='2'/%3E%3Crect x='4' y='6' width='2' height='2'/%3E%3Crect x='6' y='6' width='2' height='2'/%3E%3Crect x='10' y='6' width='2' height='2'/%3E%3Crect x='12' y='6' width='2' height='2'/%3E%3Crect x='0' y='8' width='2' height='2'/%3E%3Crect x='2' y='8' width='2' height='2'/%3E%3Crect x='2' y='10' width='2' height='2'/%3E%3Crect x='4' y='10' width='2' height='2'/%3E%3Crect x='4' y='12' width='2' height='2'/%3E%3Crect x='6' y='12' width='2' height='2'/%3E%3Crect x='0' y='14' width='2' height='2'/%3E%3Crect x='6' y='14' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 0 0/16px 16px repeat}
+.hero-in{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:16px 16px 0;min-height:128px}
+.hero-txt{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding-bottom:16px;min-width:0}
+.hero h1{font:italic 700 44px/.95 var(--display);text-transform:uppercase;letter-spacing:.01em;margin:0}
+.hero .sub{color:#b9c6b5;font-size:14px}
+.hero-img{height:118px;width:auto;max-width:46%;object-fit:contain;object-position:right bottom;flex:0 1 auto}
 .sub{color:var(--muted);font-size:14px}
 .chip{font-size:13px;padding:4px 10px;border-radius:99px;background:var(--chip);color:var(--muted)}
-.chip.live{color:var(--good)}
-.chip.old{color:var(--bad)}
+.hero .chip{background:rgba(255,255,255,.13);color:#dfe8da}
+.hero .chip.live{color:#9be8b0}
+.hero .chip.old{color:#ffb9ae}
 .warn{background:var(--warn-bg);color:var(--warn-fg);padding:12px 14px;border-radius:10px;font-size:15px}
 .warn[hidden]{display:none}
 .warn .btn{margin-top:8px}
-nav{display:flex;gap:2px;border-bottom:1px solid var(--line)}
-nav button{flex:1;background:none;border:0;border-bottom:4px solid transparent;color:var(--muted);font:700 16px var(--font);padding:12px 6px;cursor:pointer}
-nav button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+nav{display:flex;gap:6px}
+nav button{flex:1;background:var(--chip);border:0;border-bottom:3px solid transparent;border-radius:10px;color:var(--muted);font:700 18px var(--display);letter-spacing:.08em;text-transform:uppercase;padding:10px 6px 8px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--loden);color:var(--loden-fg);border-bottom-color:var(--accent)}
 button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 section.panel{display:flex;flex-direction:column;gap:14px}
 section.panel[hidden]{display:none}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
-.big{font:600 48px/1 var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.big small{font:500 16px var(--font);color:var(--muted);letter-spacing:0}
-.tag{display:inline-block;font-weight:700;font-size:15px;padding:3px 12px;border-radius:99px;margin-bottom:10px}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card::before{content:"";position:absolute;inset:5px;border:1.5px dashed var(--stitch);border-radius:10px;opacity:.5;pointer-events:none}
+.gauge{display:block;width:100%;max-width:380px;margin:0 auto}
+.gunit{text-align:center;font-size:15px;color:var(--muted);margin-top:-2px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+.tag{display:inline-block;font:700 16px var(--display);letter-spacing:.06em;text-transform:uppercase;padding:2px 12px;border-radius:99px}
 .tag.cheap{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
 .tag.mid{background:var(--chip);color:var(--muted)}
 .tag.dear{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
 .rows{display:grid;grid-template-columns:1fr auto;gap:6px 14px;margin:14px 0 0;font-size:15px}
-.rows .v{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.rows .v{font:600 18px var(--display);font-variant-numeric:tabular-nums;text-align:right}
 .rows .tot{font-weight:700;border-top:1px solid var(--line);padding-top:8px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 label{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted);min-width:0}
@@ -75,12 +98,14 @@ input,select{font:500 17px var(--font);color:var(--fg);background:var(--bg);bord
 .btn.sm{padding:6px 12px;font-size:14px}
 .btn[disabled]{opacity:.55;cursor:default}
 .days{display:flex;gap:6px;flex-wrap:wrap}
-.days .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.days .btn[aria-pressed="true"]{background:var(--loden);color:var(--loden-fg);border-color:var(--loden)}
 svg text{fill:var(--muted);font:11px var(--mono)}
-.readout{font:600 16px var(--mono);min-height:22px;font-variant-numeric:tabular-nums}
+svg text.gv{fill:var(--fg);font:italic 700 58px var(--display)}
+svg text.gt{fill:var(--muted);font:600 12px var(--display);letter-spacing:.04em}
+.readout{font:italic 700 21px var(--display);min-height:26px;font-variant-numeric:tabular-nums}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px;font-size:14px;color:var(--muted)}
-.stats b{display:block;color:var(--fg);font:600 16px var(--mono);font-variant-numeric:tabular-nums}
-.amt{font:600 36px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.stats b{display:block;color:var(--fg);font:italic 700 19px var(--display);font-variant-numeric:tabular-nums}
+.amt{font:italic 700 46px/1 var(--display);font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
 .note{font-size:14px;color:var(--muted)}
 .note a,.src a,.sup a{color:var(--accent)}
@@ -89,27 +114,34 @@ svg text{fill:var(--muted);font:11px var(--mono)}
 .sup{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
 .sup:last-child{border-bottom:0}
 .sup .n{font-weight:700}
-.sup .d{font:600 16px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.sup .d{font:italic 700 20px var(--display);text-align:right;font-variant-numeric:tabular-nums}
 .sup .d.save{color:var(--good)} .sup .d.more{color:var(--bad)}
 .sup .m{grid-column:1/-1;color:var(--muted);font-size:14px}
 .badge{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--chip);color:var(--muted);margin-left:6px;vertical-align:1px}
 .badge.avoid{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
-.sup.me{background:color-mix(in srgb,var(--accent) 9%,transparent);padding-inline:10px;border-radius:8px;border-bottom:0;margin-bottom:6px}
+.sup.me{background:color-mix(in srgb,var(--loden) 9%,transparent);padding-inline:10px;border-radius:8px;border-bottom:0;margin-bottom:6px}
 .best{background:color-mix(in srgb,var(--good) 12%,transparent);border-radius:10px;padding:12px 14px;font-size:16px}
 details{font-size:15px}
 summary{cursor:pointer;font-weight:700}
 details p{margin:8px 0 0}
 footer{font-size:13px;color:var(--muted)}
 footer a{color:var(--accent)}
-@media (prefers-reduced-motion:no-preference){.btn{transition:background .15s}}
+@media (prefers-reduced-motion:no-preference){.btn,nav button{transition:background .15s}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <div><h1>Elpris</h1><div class="sub">Aalborg · Nord Energi Net · Vestdanmark</div></div>
-    <span class="chip" id="status">Henter priser…</span>
-  </div>
+  <header class="hero">
+    <div class="hound" aria-hidden="true"></div>
+    <div class="hero-in">
+      <div class="hero-txt">
+        <h1>Elpris</h1>
+        <div class="sub">Aalborg · Nord Energi Net · Vestdanmark</div>
+        <span class="chip" id="status">Henter priser…</span>
+      </div>
+      <img class="hero-img" src="img/hero.png" alt="" onerror="this.remove()">
+    </div>
+  </header>
   <div class="warn" id="warnAgr" hidden>
     Din elaftale er ikke indtastet endnu, så prisen mangler elselskabets tillæg.
     <div><button class="btn primary sm" id="goAgr">Indtast din aftale</button></div>
@@ -125,13 +157,14 @@ footer a{color:var(--accent)}
   <section class="panel" id="tab-pris">
     <div class="card">
       <h2 id="nowLabel">Lige nu</h2>
-      <div id="nowTag"></div>
-      <div class="big" id="nowPrice">–</div>
+      <svg id="gauge" class="gauge" viewBox="0 0 300 200" role="img" aria-label="Elprisen lige nu"></svg>
+      <div class="gunit"><span>kr./kWh inkl. moms</span><span id="nowTag"></span></div>
+      <span class="sr" id="nowPrice"></span>
       <div class="rows" id="nowRows"></div>
       <p class="note" id="nowNote" style="margin:12px 0 0"></p>
     </div>
     <div class="card">
-      <h2>Hvornår er det billigst?</h2>
+      <div class="chead"><h2>Hvornår er det billigst?</h2><img class="spot" src="img/motorcykel.png" alt="" onerror="this.remove()"></div>
       <div id="cheap" class="rows" style="margin-top:0"></div>
       <p class="note" style="margin:10px 0 0">Gælder de næste 24 timer, ud fra de priser der er offentliggjort.</p>
     </div>
@@ -148,7 +181,7 @@ footer a{color:var(--accent)}
 
   <section class="panel" id="tab-lad" hidden>
     <div class="card">
-      <h2>Sæt bilen til og fra</h2>
+      <div class="chead"><h2>Sæt bilen til og fra</h2><img class="spot" src="img/bil.png" alt="" onerror="this.remove()"></div>
       <div class="grid2">
         <label>Bilen sættes til<input type="datetime-local" id="inStart"></label>
         <label>Bilen tages fra<input type="datetime-local" id="inEnd"></label>
@@ -173,7 +206,7 @@ footer a{color:var(--accent)}
       <p class="note" style="margin:10px 0 0">Tallene står på elregningen. Står tillægget ekskl. moms, så gang med 1,25. Du kan også vælge en aftale fra listen nedenfor som din egen.</p>
     </div>
     <div class="card">
-      <h2>Kan det betale sig at skifte?</h2>
+      <div class="chead"><h2>Kan det betale sig at skifte?</h2><img class="spot" src="img/hund.png" alt="" onerror="this.remove()"></div>
       <div id="best"></div>
       <p class="note" style="margin:10px 0 0">Spotpris, nettarif, afgifter og moms er ens hos alle elselskaber. Forskellen ligger kun i tillæg, abonnement og gebyrer. Her vises variable aftaler uden fast pris. Aftaler, som Strømligning fraråder eller ikke har kunnet verificere, introtilbud med midlertidig lav pris, aftaler der kræver en rabataftale og aftaler med usædvanlige priser ligger nederst i listen, og de indgår ikke i anbefalingen.</p>
     </div>
@@ -355,17 +388,62 @@ function futureTotals(maxHours){
   for(t=now;t<now+maxHours*3600000;t+=Q){var p=parts(t);if(p&&p.real)arr.push({t:t,kr:p.total});}
   return arr;
 }
+function polar(cx,cy,r,a){var t=a*Math.PI/180;return [cx+r*Math.cos(t),cy+r*Math.sin(t)];}
+function arcPath(cx,cy,r,a0,a1){
+  var p=polar(cx,cy,r,a0),q=polar(cx,cy,r,a1);
+  return "M"+p[0].toFixed(1)+" "+p[1].toFixed(1)+" A"+r+" "+r+" 0 "+((a1-a0)>180?1:0)+" 1 "+q[0].toFixed(1)+" "+q[1].toFixed(1);
+}
+function gaugeSvg(v,g,label){
+  var cx=150,cy=118,r=100,A0=150,SW=240;
+  function ang(x){var f=(x-g.dMin)/(g.dMax-g.dMin);return A0+SW*Math.max(0,Math.min(1,f));}
+  var s="",x;
+  function zone(a,b,col){if(b>a)s+="<path d='"+arcPath(cx,cy,r,ang(a),ang(b))+"' fill='none' stroke='"+col+"' stroke-width='14'/>";}
+  if(g.lo!=null){zone(g.dMin,g.lo,"var(--good)");zone(g.lo,g.hi,"var(--mid)");zone(g.hi,g.dMax,"var(--bad)");}
+  else zone(g.dMin,g.dMax,"var(--mid)");
+  var step=(g.dMax-g.dMin)>8?2:1;
+  for(x=Math.ceil(g.dMin);x<=g.dMax+1e-9;x+=step){
+    var a=ang(x),p1=polar(cx,cy,r-10,a),p2=polar(cx,cy,r-22,a),pl=polar(cx,cy,r-35,a);
+    s+="<line x1='"+p1[0].toFixed(1)+"' y1='"+p1[1].toFixed(1)+"' x2='"+p2[0].toFixed(1)+"' y2='"+p2[1].toFixed(1)+"' stroke='var(--fg)' stroke-width='2'/><text class='gt' x='"+pl[0].toFixed(1)+"' y='"+(pl[1]+4).toFixed(1)+"' text-anchor='middle'>"+x+"</text>";
+  }
+  for(x=Math.ceil(g.dMin*2)/2;x<=g.dMax+1e-9;x+=0.5){
+    if(Math.abs(x-Math.round(x/step)*step)<1e-9&&x%step===0)continue;
+    var b=ang(x),q1=polar(cx,cy,r-10,b),q2=polar(cx,cy,r-16,b);
+    s+="<line x1='"+q1[0].toFixed(1)+"' y1='"+q1[1].toFixed(1)+"' x2='"+q2[0].toFixed(1)+"' y2='"+q2[1].toFixed(1)+"' stroke='var(--muted)' stroke-width='1.5'/>";
+  }
+  s+="<g transform='rotate("+ang(v).toFixed(1)+" "+cx+" "+cy+")'><polygon points='"+(cx-14)+","+(cy-3)+" "+(cx+r-6)+","+cy+" "+(cx-14)+","+(cy+3)+"' fill='var(--fg)'/></g><circle cx='"+cx+"' cy='"+cy+"' r='9' fill='var(--surface)' stroke='var(--fg)' stroke-width='3'/>";
+  s+="<text class='gv' x='150' y='188' text-anchor='middle'>"+fk(v)+"</text>";
+  return s;
+}
+function renderGauge(v,g,tagText){
+  var el=$("gauge");el.setAttribute("aria-label","Elprisen lige nu er "+fk(v)+" kr. pr. kWh"+(tagText?", "+tagText:""));
+  el.innerHTML=gaugeSvg(v,g);
+}
+var gaugeSeen=false;
 function renderNow(){
   var slot=slotOf(Date.now()),p=S.prices.has(slot)?parts(slot):null;
-  if(!p){$("nowPrice").innerHTML="–";$("nowRows").innerHTML="";$("nowTag").innerHTML="";$("nowLabel").textContent="Lige nu";$("nowNote").textContent=S.pricesAt?"Der er ingen pris for dette tidspunkt.":"";return;}
+  if(!p){$("gauge").innerHTML="<text class='gv' x='150' y='150' text-anchor='middle'>–</text>";$("nowPrice").textContent="";$("nowRows").innerHTML="";$("nowTag").innerHTML="";$("nowLabel").textContent="Lige nu";$("nowNote").textContent=S.pricesAt?"Der er ingen pris for dette tidspunkt.":"";return;}
   $("nowLabel").textContent="Lige nu · kl. "+hm(slot)+"–"+hm(slot+Q);
-  $("nowPrice").innerHTML=fk(p.total)+" <small>kr./kWh inkl. moms</small>";
-  var arr=futureTotals(24).map(function(x){return x.kr;}).sort(function(a,b){return a-b;}),tag="";
-  if(arr.length>=8){
-    var lo=arr[Math.floor(arr.length/3)],hi=arr[Math.floor(arr.length*2/3)];
-    tag=p.total<=lo?"<span class='tag cheap'>Billigt nu</span>":(p.total>=hi?"<span class='tag dear'>Dyrt nu</span>":"<span class='tag mid'>Middel</span>");
+  $("nowPrice").textContent=fk(p.total)+" kr./kWh inkl. moms";
+  var win=futureTotals(36).map(function(x){return x.kr;});
+  if(win.indexOf(p.total)<0)win.push(p.total);
+  var arr=win.slice().sort(function(a,b){return a-b;}),n=arr.length,tag="",tagText="",g={lo:null,hi:null};
+  g.dMin=Math.min(0,Math.floor(arr[0]));g.dMax=Math.max(Math.ceil(arr[n-1]*2)/2,g.dMin+1);
+  if(n>=8){
+    g.lo=arr[Math.floor(n/3)];g.hi=arr[Math.floor(n*2/3)];
+    if(p.total<=g.lo){tag="<span class='tag cheap'>Billigt nu</span>";tagText="billigt nu";}
+    else if(p.total>=g.hi){tag="<span class='tag dear'>Dyrt nu</span>";tagText="dyrt nu";}
+    else{tag="<span class='tag mid'>Middel</span>";tagText="middel";}
   }
   $("nowTag").innerHTML=tag;
+  if(!gaugeSeen&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)){
+    gaugeSeen=true;
+    var t0=null,from=g.dMin;
+    (function step(ts){
+      if(t0==null)t0=ts;var f=Math.min(1,(ts-t0)/700),e=1-Math.pow(1-f,3);
+      renderGauge(from+(p.total-from)*e,g,tagText);
+      if(f<1)requestAnimationFrame(step);
+    })(performance.now());
+  }else{gaugeSeen=true;renderGauge(p.total,g,tagText);}
   var nm=S.agr.name?esc(S.agr.name):"elselskab";
   var rows=[["Spotpris",p.spot*VAT],["Tillæg "+nm,p.mk*VAT],["Nettarif Nord Energi Net",p.net*VAT],["Energinets tariffer",p.en*VAT],["Elafgift",p.tax*VAT]];
   var h="";rows.forEach(function(r){h+="<div>"+r[0]+"</div><div class='v'>"+fk(r[1])+"</div>";});
