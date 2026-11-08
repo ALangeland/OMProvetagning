@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /el/
 
 Sitemap: https://omprovetagning.dk/sitemap.xml

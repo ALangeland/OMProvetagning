@@ -1,0 +1,17 @@
+{
+  "name": "Elpris Aalborg",
+  "short_name": "Elpris",
+  "description": "Elprisen i dag og i morgen, pris for opladning af elbil og sammenligning af elselskaber.",
+  "lang": "da",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f1f4f1",
+  "theme_color": "#0a6a55",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elpris</title>
+<meta name="description" content="Elprisen i Aalborg lige nu, i dag og i morgen, pris for opladning af elbil og sammenligning af elselskaber.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a6a55">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Elpris">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+/* Layout: en smal kolonne, telefon først. Stor aktuel pris øverst, faner til pris, opladning og leverandører. */
+:root{
+  --bg:#f1f4f1; --surface:#ffffff; --fg:#13201a; --muted:#53635a; --line:#d4dcd6;
+  --accent:#0a6a55; --accent-fg:#ffffff; --good:#23794a; --mid:#9fada5; --bad:#bf3f27;
+  --warn-bg:#fff2d3; --warn-fg:#654500; --chip:#e3eae5;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1612; --surface:#17231d; --fg:#e8f0ea; --muted:#9db2a6; --line:#2a3b32;
+    --accent:#4fd1ac; --accent-fg:#04231b; --good:#4cc185; --mid:#5a6c62; --bad:#ff7d5e;
+    --warn-bg:#3a2f12; --warn-fg:#f0d080; --chip:#22332a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1612; --surface:#17231d; --fg:#e8f0ea; --muted:#9db2a6; --line:#2a3b32;
+  --accent:#4fd1ac; --accent-fg:#04231b; --good:#4cc185; --mid:#5a6c62; --bad:#ff7d5e;
+  --warn-bg:#3a2f12; --warn-fg:#f0d080; --chip:#22332a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.45;
+  padding-block:max(14px,env(safe-area-inset-top,0px)) calc(40px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font-size:22px;margin:0;font-weight:700;letter-spacing:-.01em}
+h2{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sub{color:var(--muted);font-size:14px}
+.chip{font-size:13px;padding:4px 10px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.chip.live{color:var(--good)}
+.chip.old{color:var(--bad)}
+.warn{background:var(--warn-bg);color:var(--warn-fg);padding:12px 14px;border-radius:10px;font-size:15px}
+.warn[hidden]{display:none}
+.warn .btn{margin-top:8px}
+nav{display:flex;gap:2px;border-bottom:1px solid var(--line)}
+nav button{flex:1;background:none;border:0;border-bottom:4px solid transparent;color:var(--muted);font:700 16px var(--font);padding:12px 6px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+section.panel{display:flex;flex-direction:column;gap:14px}
+section.panel[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.big{font:600 48px/1 var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.big small{font:500 16px var(--font);color:var(--muted);letter-spacing:0}
+.tag{display:inline-block;font-weight:700;font-size:15px;padding:3px 12px;border-radius:99px;margin-bottom:10px}
+.tag.cheap{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+.tag.mid{background:var(--chip);color:var(--muted)}
+.tag.dear{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.rows{display:grid;grid-template-columns:1fr auto;gap:6px 14px;margin:14px 0 0;font-size:15px}
+.rows .v{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.rows .tot{font-weight:700;border-top:1px solid var(--line);padding-top:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted);min-width:0}
+input,select{font:500 17px var(--font);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 11px;min-width:0;width:100%}
+.btn{font:700 15px var(--font);border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:10px 15px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.sm{padding:6px 12px;font-size:14px}
+.btn[disabled]{opacity:.55;cursor:default}
+.days{display:flex;gap:6px;flex-wrap:wrap}
+.days .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+svg text{fill:var(--muted);font:11px var(--mono)}
+.readout{font:600 16px var(--mono);min-height:22px;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px;font-size:14px;color:var(--muted)}
+.stats b{display:block;color:var(--fg);font:600 16px var(--mono);font-variant-numeric:tabular-nums}
+.amt{font:600 36px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.note{font-size:14px;color:var(--muted)}
+.note a,.src a,.sup a{color:var(--accent)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.src{font-size:14px;color:var(--muted);margin:12px 0 0}
+.sup{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+.sup:last-child{border-bottom:0}
+.sup .n{font-weight:700}
+.sup .d{font:600 16px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.sup .d.save{color:var(--good)} .sup .d.more{color:var(--bad)}
+.sup .m{grid-column:1/-1;color:var(--muted);font-size:14px}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--chip);color:var(--muted);margin-left:6px;vertical-align:1px}
+.badge.avoid{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.sup.me{background:color-mix(in srgb,var(--accent) 9%,transparent);padding-inline:10px;border-radius:8px;border-bottom:0;margin-bottom:6px}
+.best{background:color-mix(in srgb,var(--good) 12%,transparent);border-radius:10px;padding:12px 14px;font-size:16px}
+details{font-size:15px}
+summary{cursor:pointer;font-weight:700}
+details p{margin:8px 0 0}
+footer{font-size:13px;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:no-preference){.btn{transition:background .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>Elpris</h1><div class="sub">Aalborg · Nord Energi Net · Vestdanmark</div></div>
+    <span class="chip" id="status">Henter priser…</span>
+  </div>
+  <div class="warn" id="warnAgr" hidden>
+    Din elaftale er ikke indtastet endnu, så prisen mangler elselskabets tillæg.
+    <div><button class="btn primary sm" id="goAgr">Indtast din aftale</button></div>
+  </div>
+  <div class="warn" id="warnData" hidden></div>
+
+  <nav role="tablist" aria-label="Sider">
+    <button role="tab" aria-selected="true" data-tab="pris">Pris</button>
+    <button role="tab" aria-selected="false" data-tab="lad">Opladning</button>
+    <button role="tab" aria-selected="false" data-tab="lev">Leverandør</button>
+  </nav>
+
+  <section class="panel" id="tab-pris">
+    <div class="card">
+      <h2 id="nowLabel">Lige nu</h2>
+      <div id="nowTag"></div>
+      <div class="big" id="nowPrice">–</div>
+      <div class="rows" id="nowRows"></div>
+      <p class="note" id="nowNote" style="margin:12px 0 0"></p>
+    </div>
+    <div class="card">
+      <h2>Hvornår er det billigst?</h2>
+      <div id="cheap" class="rows" style="margin-top:0"></div>
+      <p class="note" style="margin:10px 0 0">Gælder de næste 24 timer, ud fra de priser der er offentliggjort.</p>
+    </div>
+    <div class="card">
+      <h2>Pris over dagen</h2>
+      <div class="days" id="dayBtns"></div>
+      <div class="readout" id="readout" style="margin-top:10px"></div>
+      <svg id="chart" viewBox="0 0 960 240" width="100%" role="img" aria-label="Samlet elpris pr. kvarter" style="touch-action:pan-y;margin-top:4px"></svg>
+      <div class="stats" id="dayStats"></div>
+      <p class="note" style="margin:12px 0 0">Priserne for i morgen kommer normalt ud omkring kl. 13. Prisen er samlet pris pr. kWh inkl. moms, tariffer og afgifter, men uden abonnement.</p>
+      <p class="src" id="srcPris"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="tab-lad" hidden>
+    <div class="card">
+      <h2>Sæt bilen til og fra</h2>
+      <div class="grid2">
+        <label>Bilen sættes til<input type="datetime-local" id="inStart"></label>
+        <label>Bilen tages fra<input type="datetime-local" id="inEnd"></label>
+        <label>Ladeeffekt (kW)<input type="number" id="inKw" value="11" min="1" max="22" step="0.1" inputmode="decimal"></label>
+        <label>Stop ved (kWh, valgfri)<input type="number" id="inCap" min="0" step="1" inputmode="decimal" placeholder="fx 40"></label>
+      </div>
+      <p class="note" style="margin:10px 0 0">Ladeeffekten er det, bilen faktisk trækker. Mange biler lader langsommere end 11 kW, og farten falder mod fuldt batteri.</p>
+    </div>
+    <div class="card" id="result"></div>
+    <div class="card" id="smartCard" hidden></div>
+  </section>
+
+  <section class="panel" id="tab-lev" hidden>
+    <div class="card">
+      <h2>Din elaftale</h2>
+      <div class="grid2">
+        <label>Navn<input id="agName" placeholder="fx Fyns El" autocomplete="off"></label>
+        <label>Tillæg til spotpris (øre/kWh inkl. moms)<input type="number" id="agMk" step="0.1" inputmode="decimal" placeholder="fx 9,0"></label>
+        <label>Abonnement og gebyrer (kr./md. inkl. moms)<input type="number" id="agSub" step="0.1" inputmode="decimal" placeholder="fx 39,20"></label>
+        <label>Årsforbrug (kWh)<input type="number" id="agYear" step="100" min="0" inputmode="decimal" value="4000"></label>
+      </div>
+      <p class="note" style="margin:10px 0 0">Tallene står på elregningen. Står tillægget ekskl. moms, så gang med 1,25. Du kan også vælge en aftale fra listen nedenfor som din egen.</p>
+    </div>
+    <div class="card">
+      <h2>Kan det betale sig at skifte?</h2>
+      <div id="best"></div>
+      <p class="note" style="margin:10px 0 0">Spotpris, nettarif, afgifter og moms er ens hos alle elselskaber. Forskellen ligger kun i tillæg, abonnement og gebyrer. Her vises variable aftaler uden fast pris. Aftaler, som Strømligning fraråder eller ikke har kunnet verificere, ligger nederst i listen.</p>
+    </div>
+    <div class="card">
+      <h2>Alle aftaler</h2>
+      <div id="supList"></div>
+      <div class="actions" style="margin-top:12px"><button class="btn" id="showAll">Vis alle</button></div>
+      <p class="src" id="srcLev"></p>
+    </div>
+  </section>
+
+  <footer>
+    <details>
+      <summary>Sådan får du appen på telefonen</summary>
+      <p><b>iPhone:</b> Åbn siden i Safari, tryk på Del-knappen og vælg "Føj til hjemmeskærm".</p>
+      <p><b>Android:</b> Åbn siden i Chrome, tryk på menuen med de tre prikker og vælg "Installér app" eller "Føj til startskærm".</p>
+      <p id="installP" hidden><button class="btn sm" id="installBtn">Installér app</button></p>
+    </details>
+    <p>Spotpriser, nettarif og afgifter: <a href="https://www.energidataservice.dk/" target="_blank" rel="noopener">Energi Data Service (Energinet)</a> via <a href="https://elpriser.org/" target="_blank" rel="noopener">elpriser.org</a>. Priserne er vejledende. Tjek altid regningen og elselskabets egne vilkår.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var TZ="Europe/Copenhagen", Q=900000, VAT=1.25;
+var NORD_GLN="5790000610877";
+var API="https://elpriser.org/api/raw/";
+var SL="https://stromligning.dk/api/companies";
+var FALLBACK_NET=[ // Nettarif C hos Nord Energi Net, kr/kWh ekskl. moms: [nat 0-6, dag, spids 17-21]
+ {from:"2026-04-01",to:"2026-10-01",b:[0.0731,0.1096,0.2851]},
+ {from:"2026-10-01",to:"2027-01-01",b:[0.0731,0.2193,0.6579]},
+ {from:"2027-01-01",to:"2027-04-01",b:[0.0756,0.2267,0.6801]},
+ {from:"2027-04-01",to:"2027-10-01",b:[0.0756,0.1133,0.2947]},
+ {from:"2027-10-01",to:"2028-01-01",b:[0.0756,0.2267,0.6801]}
+];
+var FB_CHARGE={"41000":0.072,"40000":0.043,"EA-001":0.008};
+var S={prices:new Map(),pricesAt:0,tariffs:null,charges:null,companies:null,companiesAt:0,live:false,agr:{name:"",mk:null,sub:null,src:"",pid:""},year:4000,day:null,showAll:false,fetching:false};
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function fk(x,d){d=d==null?2:d;return x.toLocaleString("da-DK",{minimumFractionDigits:d,maximumFractionDigits:d});}
+var fTime=new Intl.DateTimeFormat("da-DK",{timeZone:TZ,hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+var fDate=new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"});
+var fHour=new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"2-digit",hourCycle:"h23"});
+var fLong=new Intl.DateTimeFormat("da-DK",{timeZone:TZ,weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+var fShort=new Intl.DateTimeFormat("da-DK",{timeZone:TZ,day:"numeric",month:"short"});
+var fDay=new Intl.DateTimeFormat("da-DK",{timeZone:TZ,weekday:"short",day:"numeric",month:"short"});
+function dkDate(ms){return fDate.format(ms);}
+function dkHour(ms){return parseInt(fHour.format(ms),10);}
+function slotOf(ms){return Math.floor(ms/Q)*Q;}
+function hm(ms){return fTime.format(ms);}
+
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function load(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+
+function getJson(url,ms){
+  var ctl=new AbortController(),t=setTimeout(function(){ctl.abort();},ms||12000);
+  return fetch(url,{signal:ctl.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw new Error("http "+r.status);return r.json();},function(e){clearTimeout(t);throw e;});
+}
+
+/* ---------- beregning ---------- */
+function netTariff(slot){
+  var date=dkDate(slot),h=dkHour(slot),i;
+  if(S.tariffs){
+    for(i=0;i<S.tariffs.length;i++){var r=S.tariffs[i];if(r.from<=date&&date<r.to)return r.p[h];}
+    // Dato uden offentliggjort tarif: brug den nærmeste periode
+    var best=S.tariffs[0];
+    for(i=0;i<S.tariffs.length;i++){if(S.tariffs[i].from<=date)best=S.tariffs[i];}
+    if(best)return best.p[h];
+  }
+  var per=FALLBACK_NET[FALLBACK_NET.length-1];
+  for(var j=0;j<FALLBACK_NET.length;j++){var t=FALLBACK_NET[j];if(t.from<=date&&date<t.to){per=t;break;}}
+  return per.b[(h>=17&&h<21)?2:(h<6?0:1)];
+}
+function chargeAt(code,date){
+  if(S.charges){for(var i=0;i<S.charges.length;i++){var r=S.charges[i];if(r.code===code&&r.from<=date&&date<r.to)return r.p;}}
+  return FB_CHARGE[code];
+}
+function spotAt(slot){
+  if(S.prices.has(slot))return {v:S.prices.get(slot),est:false};
+  var d,s,alt;
+  for(d=1;d<=3;d++){for(s=-1;s<=1;s+=2){alt=slot+s*d*86400000;if(S.prices.has(alt))return {v:S.prices.get(alt),est:true};}}
+  return null;
+}
+function mkInc(){return S.agr.mk==null?0:S.agr.mk;}
+function parts(slot){
+  var sp=spotAt(slot);if(!sp)return null;
+  var date=dkDate(slot),spot=sp.v/1000,net=netTariff(slot);
+  var sys=chargeAt("41000",date),tr=chargeAt("40000",date),tax=chargeAt("EA-001",date);
+  var exMk=mkInc()/100/VAT;
+  var ex=spot+exMk+net+sys+tr+tax;
+  return {spot:spot,mk:exMk,net:net,en:sys+tr,tax:tax,total:ex*VAT,est:sp.est,real:!sp.est};
+}
+function simulate(startMs,endMs,kw,cap){
+  var cur=startMs,kwh=0,cost=0,est=false,endAt=endMs,guard=0,missing=false;
+  while(cur<endMs&&guard++<4000){
+    var slot=slotOf(cur),seg=Math.min(slot+Q,endMs),e=kw*((seg-cur)/3600000),stop=false;
+    if(cap>0&&kwh+e>=cap){e=cap-kwh;endAt=cur+(e/kw)*3600000;stop=true;}
+    var p=parts(slot);
+    if(!p){missing=true;}else{cost+=e*p.total;if(p.est)est=true;}
+    kwh+=e;cur=seg;if(stop)break;
+  }
+  return {kwh:kwh,cost:cost,est:est,endAt:endAt,missing:missing};
+}
+
+/* ---------- hentning ---------- */
+function loadPrices(){
+  var t=Date.now(),d=function(ms){return new Date(ms).toISOString().slice(0,10);};
+  return getJson(API+"prices?area=DK1&start="+d(t-86400000)+"&end="+d(t+2*86400000)).then(function(j){
+    if(!j.records||!j.records.length)throw new Error("empty");
+    var m=new Map();
+    j.records.forEach(function(r){var ms=Date.parse(r.TimeUTC+"Z");if(!isNaN(ms)&&typeof r.DayAheadPriceDKK==="number")m.set(ms,r.DayAheadPriceDKK);});
+    if(!m.size)throw new Error("empty");
+    S.prices=m;S.pricesAt=Date.now();S.live=true;
+    save("elpris.prices",{at:S.pricesAt,recs:Array.from(m.entries())});
+  });
+}
+function loadTariffs(){
+  return getJson(API+"tariffs").then(function(j){
+    var rows=(j.records||[]).filter(function(r){return r.GLN_Number===NORD_GLN;}).map(function(r){
+      var p=[];for(var i=1;i<=24;i++)p.push(r["Price"+i]);
+      return {from:r.ValidFrom.slice(0,10),to:(r.ValidTo||"2999-01-01").slice(0,10),p:p};
+    });
+    if(rows.length){S.tariffs=rows;save("elpris.tariffs",rows);}
+  });
+}
+function loadCharges(){
+  return getJson(API+"encharges").then(function(j){
+    var rows=(j.records||[]).map(function(r){return {code:r.ChargeTypeCode,from:r.ValidFrom.slice(0,10),to:(r.ValidTo||"2999-01-01").slice(0,10),p:r.Price1};});
+    if(rows.length){S.charges=rows;save("elpris.charges",rows);}
+  });
+}
+function trimCompanies(list){
+  var out=[];
+  list.forEach(function(c){
+    if(c.companyType==="charge"||c.closed)return;
+    (c.products||[]).forEach(function(p){
+      if(p.productType!=="variable"||p.disabled||p.hidden||p.excludeInComparison)return;
+      if(typeof p.consumptionSurcharge!=="number")return;
+      out.push({c:c.name,avoid:!!c.avoid,id:p.id,n:p.name,cs:p.consumptionSurcharge,sub:(p.subscriptionMonthly||0)+(p.feesMonthly||0),
+        bind:p.bindingPeriod||"",min:typeof p.minConsumption==="number"?p.minConsumption:null,max:typeof p.maxConsumption==="number"?p.maxConsumption:null,
+        link:p.link||c.link||"",upd:p.updated||"",unv:!!p.unverified});
+    });
+  });
+  return out;
+}
+function loadCompanies(force){
+  var age=Date.now()-S.companiesAt;
+  if(!force&&S.companies&&age<86400000)return Promise.resolve();
+  return getJson(SL,25000).then(function(list){
+    var t=trimCompanies(list);
+    if(!t.length)throw new Error("empty");
+    S.companies=t;S.companiesAt=Date.now();save("elpris.companies",{at:S.companiesAt,list:t});
+  });
+}
+function refresh(force){
+  if(S.fetching)return Promise.resolve();
+  S.fetching=true;
+  var job=[loadPrices().catch(function(){S.live=false;}),loadTariffs().catch(function(){}),loadCharges().catch(function(){})];
+  if(force||S.tab==="lev"||!S.companies)job.push(loadCompanies(force).catch(function(){S.compErr=true;}));
+  return Promise.all(job).then(function(){S.fetching=false;renderStatus();renderAll();},function(){S.fetching=false;});
+}
+
+/* ---------- status ---------- */
+function renderStatus(){
+  var el=$("status"),w=$("warnData"),today=dkDate(Date.now()),has=false;
+  S.prices.forEach(function(v,k){if(dkDate(k)===today)has=true;});
+  if(S.live){el.textContent="Opdateret "+hm(S.pricesAt);el.className="chip live";w.hidden=true;}
+  else if(S.pricesAt){el.textContent="Offline · priser fra "+fShort.format(S.pricesAt)+" kl. "+hm(S.pricesAt);el.className="chip old";
+    w.hidden=false;w.textContent="Appen kunne ikke hente nye priser. Du ser de seneste gemte priser"+(has?"":", og de er ikke fra i dag")+". Tjek internetforbindelsen.";}
+  else{el.textContent="Henter priser…";el.className="chip";w.hidden=true;}
+  $("warnAgr").hidden=S.agr.mk!=null&&S.agr.sub!=null;
+}
+
+/* ---------- Pris ---------- */
+function futureTotals(maxHours){
+  var now=slotOf(Date.now()),arr=[],t;
+  for(t=now;t<now+maxHours*3600000;t+=Q){var p=parts(t);if(p&&p.real)arr.push({t:t,kr:p.total});}
+  return arr;
+}
+function renderNow(){
+  var slot=slotOf(Date.now()),p=S.prices.has(slot)?parts(slot):null;
+  if(!p){$("nowPrice").innerHTML="–";$("nowRows").innerHTML="";$("nowTag").innerHTML="";$("nowLabel").textContent="Lige nu";$("nowNote").textContent=S.pricesAt?"Der er ingen pris for dette tidspunkt.":"";return;}
+  $("nowLabel").textContent="Lige nu · kl. "+hm(slot)+"–"+hm(slot+Q);
+  $("nowPrice").innerHTML=fk(p.total)+" <small>kr./kWh inkl. moms</small>";
+  var arr=futureTotals(24).map(function(x){return x.kr;}).sort(function(a,b){return a-b;}),tag="";
+  if(arr.length>=8){
+    var lo=arr[Math.floor(arr.length/3)],hi=arr[Math.floor(arr.length*2/3)];
+    tag=p.total<=lo?"<span class='tag cheap'>Billigt nu</span>":(p.total>=hi?"<span class='tag dear'>Dyrt nu</span>":"<span class='tag mid'>Middel</span>");
+  }
+  $("nowTag").innerHTML=tag;
+  var nm=S.agr.name?esc(S.agr.name):"elselskab";
+  var rows=[["Spotpris",p.spot*VAT],["Tillæg "+nm,p.mk*VAT],["Nettarif Nord Energi Net",p.net*VAT],["Energinets tariffer",p.en*VAT],["Elafgift",p.tax*VAT]];
+  var h="";rows.forEach(function(r){h+="<div>"+r[0]+"</div><div class='v'>"+fk(r[1])+"</div>";});
+  h+="<div class='tot'>Samlet pris inkl. moms</div><div class='tot v'>"+fk(p.total)+"</div>";
+  $("nowRows").innerHTML=h;
+  $("nowNote").textContent="Beløbene i listen er inkl. moms. Abonnement og gebyrer er ikke med.";
+}
+function bestWindow(slots,arr,dir){
+  var best=null,i,j;
+  for(i=0;i+slots<=arr.length;i++){
+    var ok=true,sum=0;
+    for(j=0;j<slots;j++){if(j>0&&arr[i+j].t-arr[i+j-1].t!==Q){ok=false;break;}sum+=arr[i+j].kr;}
+    if(!ok)continue;
+    var a=sum/slots;
+    if(!best||(dir<0?a<best.a:a>best.a))best={t:arr[i].t,a:a,end:arr[i+slots-1].t+Q};
+  }
+  return best;
+}
+function renderCheap(){
+  var arr=futureTotals(24),h="";
+  if(arr.length<4){$("cheap").innerHTML="<div class='muted' style='grid-column:1/-1'>Der er ikke nok priser endnu.</div>";return;}
+  var one=bestWindow(4,arr,-1),three=arr.length>=12?bestWindow(12,arr,-1):null,dear=bestWindow(4,arr,1);
+  function when(w){
+    var d=dkDate(w.t),today=dkDate(Date.now()),tom=dkDate(Date.now()+86400000);
+    var day=d===today?"i dag":(d===tom?"i morgen":fDay.format(w.t));
+    return day+" kl. "+hm(w.t)+"–"+hm(w.end);
+  }
+  h+="<div>Billigste time</div><div class='v'>"+when(one)+"<br>"+fk(one.a)+" kr.</div>";
+  if(three)h+="<div>Billigste 3 timer</div><div class='v'>"+when(three)+"<br>"+fk(three.a)+" kr.</div>";
+  h+="<div>Dyreste time</div><div class='v'>"+when(dear)+"<br>"+fk(dear.a)+" kr.</div>";
+  $("cheap").innerHTML=h;
+}
+function availableDays(){
+  var set={},today=dkDate(Date.now());
+  S.prices.forEach(function(v,k){var d=dkDate(k);if(d>=today)set[d]=1;});
+  return Object.keys(set).sort();
+}
+function renderDayBtns(){
+  var days=availableDays(),today=dkDate(Date.now()),tomorrow=dkDate(Date.now()+86400000),h="";
+  if(!days.length){$("dayBtns").innerHTML="";return;}
+  if(!S.day||days.indexOf(S.day)<0)S.day=days.indexOf(today)>=0?today:days[0];
+  days.forEach(function(d){
+    var label=d===today?"I dag":(d===tomorrow?"I morgen":d.slice(8)+"/"+d.slice(5,7));
+    h+="<button class='btn sm' data-day='"+d+"' aria-pressed='"+(d===S.day)+"'>"+label+"</button>";
+  });
+  $("dayBtns").innerHTML=h;
+  Array.prototype.forEach.call($("dayBtns").querySelectorAll("button"),function(b){b.onclick=function(){S.day=b.getAttribute("data-day");renderDayBtns();renderChart();};});
+}
+var bars=[];
+function renderChart(){
+  var keys=[];
+  S.prices.forEach(function(v,k){if(dkDate(k)===S.day)keys.push(k);});
+  keys.sort(function(a,b){return a-b;});
+  bars=keys.map(function(k){return {t:k,kr:parts(k).total};});
+  var svg=$("chart");
+  if(!bars.length){svg.innerHTML="";$("dayStats").innerHTML="";$("readout").textContent="";return;}
+  var W=960,H=240,L=44,B=24,T=8,pw=W-L-4,ph=H-B-T;
+  var vals=bars.map(function(b){return b.kr;}),mx=Math.max.apply(null,vals),mn=Math.min(0,Math.min.apply(null,vals));
+  var step=mx-mn>4?1:0.5;mx=Math.ceil(mx/step)*step;
+  var sorted=vals.slice().sort(function(a,b){return a-b;}),lo=sorted[Math.floor(sorted.length/3)],hi=sorted[Math.floor(sorted.length*2/3)];
+  function y(v){return T+ph-((v-mn)/(mx-mn))*ph;}
+  var bw=pw/bars.length,s="",g;
+  for(g=mn;g<=mx+1e-9;g+=step){s+="<line x1='"+L+"' x2='"+(W-4)+"' y1='"+y(g)+"' y2='"+y(g)+"' stroke='var(--line)' stroke-width='1'/><text x='"+(L-6)+"' y='"+(y(g)+4)+"' text-anchor='end'>"+fk(g,1)+"</text>";}
+  var nowSlot=slotOf(Date.now());
+  bars.forEach(function(b,i){
+    var col=b.kr<=lo?"var(--good)":(b.kr>=hi?"var(--bad)":"var(--mid)");
+    var y0=y(Math.max(b.kr,0)),hgt=Math.max(1,Math.abs(y(b.kr)-y(0)));
+    s+="<rect x='"+(L+i*bw+0.4)+"' y='"+y0+"' width='"+Math.max(1,bw-0.8)+"' height='"+hgt+"' fill='"+col+"'"+(b.t===nowSlot?" stroke='var(--fg)' stroke-width='2'":"")+"/>";
+    if(hm(b.t).slice(3)==="00"&&dkHour(b.t)%6===0)s+="<text x='"+(L+i*bw)+"' y='"+(H-6)+"'>"+hm(b.t).slice(0,2)+"</text>";
+  });
+  svg.innerHTML=s;
+  var best=0,worst=0,bi=0,wi=0,i;
+  for(i=0;i+4<=bars.length;i++){var a=(bars[i].kr+bars[i+1].kr+bars[i+2].kr+bars[i+3].kr)/4;if(i===0||a<best){best=a;bi=i;}if(i===0||a>worst){worst=a;wi=i;}}
+  var avg=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  $("dayStats").innerHTML="<div>Billigste time<b>kl. "+hm(bars[bi].t)+" · "+fk(best)+" kr.</b></div><div>Dyreste time<b>kl. "+hm(bars[wi].t)+" · "+fk(worst)+" kr.</b></div><div>Gennemsnit<b>"+fk(avg)+" kr.</b></div>";
+  var idx=bars.findIndex(function(b){return b.t===nowSlot;});
+  showReadout(idx>=0?idx:bi);
+}
+function showReadout(i){var b=bars[i];if(!b)return;$("readout").textContent="kl. "+hm(b.t)+"–"+hm(b.t+Q)+" · "+fk(b.kr)+" kr./kWh";}
+function bindChart(){
+  var svg=$("chart");
+  function at(ev){var r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*960,L=44,bw=(960-L-4)/Math.max(bars.length,1),i=Math.floor((x-L)/bw);if(i>=0&&i<bars.length)showReadout(i);}
+  svg.addEventListener("pointermove",at);svg.addEventListener("pointerdown",at);
+}
+
+/* ---------- Opladning ---------- */
+function toLocalInput(ms){var d=new Date(ms),p=function(n){return String(n).padStart(2,"0");};return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes());}
+function defaults(){
+  var now=Date.now(),s=Math.ceil(now/Q)*Q,e=new Date(s);
+  e.setHours(7,0,0,0);if(e.getTime()<=s)e.setDate(e.getDate()+1);
+  $("inStart").value=toLocalInput(s);$("inEnd").value=toLocalInput(e.getTime());
+}
+function renderCharge(){
+  var s=Date.parse($("inStart").value),e=Date.parse($("inEnd").value),kw=parseFloat($("inKw").value)||0,cap=parseFloat($("inCap").value)||0;
+  var box=$("result"),smart=$("smartCard");smart.hidden=true;
+  if(!(s&&e&&e>s&&kw>0)){box.innerHTML="<div class='muted'>Vælg tidspunkter og ladeeffekt for at få et prisestimat.</div>";return;}
+  var r=simulate(s,e,kw,cap),hrs=(r.endAt-s)/3600000,note="";
+  if(r.est)note+="<p class='note'>Dele af perioden ligger uden offentliggjort pris. Her er brugt prisen fra samme tidspunkt på en anden dag som skøn.</p>";
+  if(r.missing)note+="<p class='note'>Nogle kvarterer mangler pris og er ikke med i summen.</p>";
+  if(S.agr.mk==null)note+="<p class='note'>Prisen er uden elselskabets tillæg, fordi aftalen ikke er indtastet.</p>";
+  box.innerHTML="<h2>Estimeret pris for opladningen</h2><div class='amt'>"+fk(r.cost)+" <small class='muted' style='font:500 16px var(--font)'>kr. inkl. moms</small></div>"+
+   "<div class='rows'><div>Strøm ladet</div><div class='v'>"+fk(r.kwh,1)+" kWh</div><div>Gennemsnitspris</div><div class='v'>"+fk(r.kwh>0?r.cost/r.kwh:0)+" kr./kWh</div><div>Ladetid</div><div class='v'>"+fk(hrs,1)+" t</div><div>Færdig</div><div class='v'>"+fLong.format(r.endAt)+"</div></div>"+note;
+  if(cap>0){
+    var n=Math.ceil(cap/(kw*0.25)),cand=[];
+    for(var t=Math.ceil(s/Q)*Q;t+Q<=e;t+=Q){var p=parts(t);if(p)cand.push({t:t,kr:p.total});}
+    if(cand.length>=n&&n>0){
+      var pick=cand.slice().sort(function(a,b){return a.kr-b.kr;}).slice(0,n).sort(function(a,b){return a.t-b.t;});
+      var each=cap/n,sc=pick.reduce(function(a,b){return a+b.kr*each;},0),ranges=[],cur=null;
+      pick.forEach(function(q){if(cur&&q.t===cur.end){cur.end=q.t+Q;}else{cur={start:q.t,end:q.t+Q};ranges.push(cur);}});
+      var txt=ranges.map(function(x){return hm(x.start)+"–"+hm(x.end);}).join(", ");
+      smart.hidden=false;
+      smart.innerHTML="<h2>Hvis du lader i de billigste kvarterer</h2><div class='rows'><div>Pris</div><div class='v'>"+fk(sc)+" kr.</div><div>Besparelse</div><div class='v'>"+fk(Math.max(r.cost-sc,0))+" kr.</div></div><p class='note' style='margin:10px 0 0'>Lad kl. "+esc(txt)+". Det kræver, at bilen eller laderen kan styres til de tidspunkter.</p>";
+    }
+  }
+}
+
+/* ---------- Leverandør ---------- */
+function agrReady(){return S.agr.mk!=null&&S.agr.sub!=null;}
+function yearCost(mk,sub){return mk/100*S.year+sub*12;}
+function saveAgr(){save("elpris.agr",{agr:S.agr,year:S.year});}
+function useAsMine(p){
+  S.agr={name:p.c+" "+p.n,mk:Math.round(p.cs*100*VAT*1000)/1000,sub:Math.round(p.sub*100)/100,src:"stromligning",pid:p.id};
+  saveAgr();fillAgr();refreshAllViews();
+}
+function fillAgr(){
+  $("agName").value=S.agr.name||"";$("agMk").value=S.agr.mk==null?"":S.agr.mk;$("agSub").value=S.agr.sub==null?"":S.agr.sub;$("agYear").value=S.year;
+}
+function renderSup(){
+  var list=$("supList"),best=$("best"),srcEl=$("srcLev");
+  var attrib="Data provided by Strømligning. <a href='https://stromligning.dk' target='_blank' rel='noopener'>https://stromligning.dk</a>";
+  if(!S.companies){
+    list.innerHTML="<div class='muted'>"+(S.compErr?"Kunne ikke hente leverandørpriserne. Prøv igen om lidt.":"Henter leverandørpriser…")+"</div>";
+    best.innerHTML="<div class='muted'>Venter på leverandørpriser…</div>";srcEl.innerHTML="";$("showAll").hidden=true;
+    return;
+  }
+  var yk=S.year,cur=agrReady()?yearCost(S.agr.mk,S.agr.sub):null;
+  var rows=S.companies.filter(function(p){return (p.min==null||yk>=p.min)&&(p.max==null||yk<=p.max);}).map(function(p){
+    var mk=p.cs*100*VAT;return {p:p,mk:mk,cost:yearCost(mk,p.sub)};
+  }).sort(function(a,b){
+    var fa=(a.p.avoid||a.p.unv)?1:0,fb=(b.p.avoid||b.p.unv)?1:0; // aftaler med advarsel vises nederst
+    return fa-fb||a.cost-b.cost;
+  });
+  var ok=rows.filter(function(r){return !r.p.avoid&&!r.p.unv;}),b=ok[0];
+  if(cur==null){best.innerHTML="<div class='muted'>Indtast din nuværende aftale ovenfor, så kan appen sammenligne.</div>";}
+  else if(b){
+    var diff=cur-b.cost;
+    if(diff>150)best.innerHTML="<div class='best'><b>Billigste aftale ved "+fk(yk,0)+" kWh om året: "+esc(b.p.c)+" "+esc(b.p.n)+".</b><br>Du kan spare cirka <b>"+fk(diff,0)+" kr. om året</b> ("+fk(diff/12,0)+" kr. om måneden) på tillæg, abonnement og gebyrer.</div><p class='note' style='margin:10px 0 0'>Tjek bindingsperiode, om aftalen gælder nye kunder, og at udbyderen sælger i Aalborg, før du skifter.</p>";
+    else best.innerHTML="<div class='best'><b>Din aftale ligger tæt på det billigste.</b><br>Den billigste fundne aftale ("+esc(b.p.c)+" "+esc(b.p.n)+") sparer højst cirka "+fk(Math.max(diff,0),0)+" kr. om året. Det er sjældent værd at skifte for.</div>";
+  }else best.innerHTML="<div class='muted'>Ingen aftaler passer til dette årsforbrug.</div>";
+  var show=S.showAll?rows:rows.slice(0,12),h="";
+  if(cur!=null){
+    h+="<div class='sup me'><div class='n'>"+esc(S.agr.name||"Din aftale")+" <span class='badge'>Din aftale</span></div><div class='d'>"+fk(cur,0)+" kr./år</div><div class='m'>Tillæg "+fk(S.agr.mk,1)+" øre/kWh · abonnement og gebyrer "+fk(S.agr.sub)+" kr./md. inkl. moms</div></div>";
+  }
+  show.forEach(function(r,i){
+    var p=r.p,diff=cur!=null?r.cost-cur:null,same=diff!=null&&Math.abs(diff)<1,cls=diff==null||same?"":(diff<0?"save":"more");
+    var bad=(p.avoid?"<span class='badge avoid'>Strømligning fraråder</span>":"")+(p.unv?"<span class='badge'>Uverificeret</span>":"")+(p.bind?"<span class='badge'>"+esc(p.bind)+"</span>":"");
+    var meta="Tillæg "+fk(r.mk,1)+" øre/kWh · abonnement og gebyrer "+fk(p.sub)+" kr./md. · "+fk(r.cost,0)+" kr./år";
+    if(p.upd){var d=new Date(p.upd);if(!isNaN(d))meta+=" · opdateret "+fShort.format(d.getTime());}
+    h+="<div class='sup'><div class='n'>"+esc(p.c)+" · "+esc(p.n)+bad+"</div><div class='d "+cls+"'>"+(diff==null?"":(same?"Samme pris":(diff>0?"+":"−")+fk(Math.abs(diff),0)+" kr./år"))+"</div><div class='m'>"+meta+
+      "<div class='actions' style='margin-top:6px'><button class='btn sm' data-use='"+i+"'>Brug som min aftale</button>"+(/^https?:\/\//.test(p.link)?"<a href='"+esc(p.link)+"' target='_blank' rel='noopener'>Gå til udbyder</a>":"")+"</div></div></div>";
+  });
+  list.innerHTML=h||"<div class='muted'>Ingen aftaler.</div>";
+  Array.prototype.forEach.call(list.querySelectorAll("button[data-use]"),function(bt){bt.onclick=function(){useAsMine(show[+bt.getAttribute("data-use")].p);};});
+  var btn=$("showAll");btn.hidden=rows.length<=12;btn.textContent=S.showAll?"Vis færre":"Vis alle ("+rows.length+")";
+  srcEl.innerHTML=attrib+(S.companiesAt?"<br>Hentet "+fShort.format(S.companiesAt)+" kl. "+hm(S.companiesAt)+". Priser og vilkår kan have ændret sig, så tjek hos udbyderen.":"");
+}
+function renderSrcPris(){
+  var el=$("srcPris");
+  el.innerHTML="Kilde: Energi Data Service (Energinet) via <a href='https://elpriser.org/' target='_blank' rel='noopener'>elpriser.org</a>."+(S.agr.src==="stromligning"?"<br>Tillæg og abonnement: Data provided by Strømligning. <a href='https://stromligning.dk' target='_blank' rel='noopener'>https://stromligning.dk</a>":"");
+}
+
+/* ---------- samlet ---------- */
+function renderAll(){renderStatus();renderNow();renderCheap();renderDayBtns();renderChart();renderCharge();renderSrcPris();if(S.tab==="lev")renderSup();}
+function refreshAllViews(){renderAll();renderSup();}
+function setTab(t){
+  S.tab=t;
+  Array.prototype.forEach.call(document.querySelectorAll("nav button"),function(x){x.setAttribute("aria-selected",x.getAttribute("data-tab")===t?"true":"false");});
+  ["pris","lad","lev"].forEach(function(k){$("tab-"+k).hidden=k!==t;});
+  if(t==="lev"){renderSup();loadCompanies(false).then(function(){S.compErr=false;renderSup();},function(){S.compErr=!S.companies;renderSup();});}
+}
+function numOrNull(v){if(v===""||v==null)return null;var n=parseFloat(String(v).replace(",","."));return isNaN(n)?null:n;}
+function init(){
+  var ag=load("elpris.agr");
+  if(ag&&ag.agr){S.agr=ag.agr;if(typeof ag.year==="number")S.year=ag.year;}
+  var pr=load("elpris.prices");
+  if(pr&&pr.recs){S.prices=new Map(pr.recs);S.pricesAt=pr.at||0;}
+  var tf=load("elpris.tariffs");if(tf&&tf.length)S.tariffs=tf;
+  var ch=load("elpris.charges");if(ch&&ch.length)S.charges=ch;
+  var co=load("elpris.companies");if(co&&co.list&&co.list.length){S.companies=co.list;S.companiesAt=co.at||0;}
+  S.tab="pris";
+  Array.prototype.forEach.call(document.querySelectorAll("nav button"),function(b){b.onclick=function(){setTab(b.getAttribute("data-tab"));};});
+  $("goAgr").onclick=function(){setTab("lev");$("agMk").focus();};
+  defaults();bindChart();fillAgr();
+  ["inStart","inEnd","inKw","inCap"].forEach(function(id){$(id).addEventListener("input",renderCharge);});
+  function agrInput(){
+    S.agr.name=$("agName").value.trim();S.agr.mk=numOrNull($("agMk").value);S.agr.sub=numOrNull($("agSub").value);S.agr.src="manual";S.agr.pid="";
+    var y=numOrNull($("agYear").value);if(y!=null&&y>0)S.year=y;
+    saveAgr();refreshAllViews();
+  }
+  ["agName","agMk","agSub","agYear"].forEach(function(id){$(id).addEventListener("input",agrInput);});
+  $("showAll").onclick=function(){S.showAll=!S.showAll;renderSup();};
+  renderAll();
+  refresh(false).then(function(){defaults();renderCharge();});
+  setInterval(function(){renderNow();renderCheap();renderChart();},60000);
+  setInterval(function(){
+    var age=Date.now()-S.pricesAt,hr=parseInt(fHour.format(Date.now()),10),tomorrowMissing=true,tm=dkDate(Date.now()+86400000);
+    S.prices.forEach(function(v,k){if(dkDate(k)===tm)tomorrowMissing=false;});
+    if(age>3600000||(tomorrowMissing&&hr>=13&&age>900000)||!S.live&&age>300000)refresh(false);
+  },60000);
+  document.addEventListener("visibilitychange",function(){if(!document.hidden&&Date.now()-S.pricesAt>600000)refresh(false);});
+  var dp=null;
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;$("installP").hidden=false;});
+  $("installBtn").onclick=function(){if(dp){dp.prompt();dp=null;$("installP").hidden=true;}};
+  if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("sw.js").catch(function(){});}
+}
+init();
+})();
+</script>
+</body>
+</html>
