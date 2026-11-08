@@ -199,7 +199,7 @@ footer a{color:var(--accent)}
     <div class="card">
       <h2>Din elaftale</h2>
       <div class="grid2">
-        <label>Navn<input id="agName" placeholder="fx Fyns El" autocomplete="off"></label>
+        <label>Navn<input id="agName" placeholder="fx Energi Fyn SpotEL" autocomplete="off"></label>
         <label>Tillæg til spotpris (øre/kWh inkl. moms)<input type="number" id="agMk" step="0.1" inputmode="decimal" placeholder="fx 9,0"></label>
         <label>Abonnement og gebyrer (kr./md. inkl. moms)<input type="number" id="agSub" step="0.1" inputmode="decimal" placeholder="fx 39,20"></label>
         <label>Årsforbrug (kWh)<input type="number" id="agYear" step="100" min="0" inputmode="decimal" value="4000"></label>
@@ -213,6 +213,7 @@ footer a{color:var(--accent)}
     </div>
     <div class="card">
       <h2>Alle aftaler</h2>
+      <label style="margin-bottom:10px">Søg udbyder eller aftale<input type="search" id="supQ" placeholder="fx Energi Fyn" autocomplete="off"></label>
       <div id="supList"></div>
       <div class="actions" style="margin-top:12px"><button class="btn" id="showAll">Vis alle</button></div>
       <p class="src" id="srcLev"></p>
@@ -245,7 +246,7 @@ var FALLBACK_NET=[ // Nettarif C hos Nord Energi Net, kr/kWh ekskl. moms: [nat 0
  {from:"2027-10-01",to:"2028-01-01",b:[0.0756,0.2267,0.6801]}
 ];
 var FB_CHARGE={"41000":0.072,"40000":0.043,"EA-001":0.008};
-var S={prices:new Map(),pricesAt:0,tariffs:null,charges:null,companies:null,companiesAt:0,live:false,agr:{name:"",mk:null,sub:null,src:"",pid:""},year:4000,day:null,showAll:false,fetching:false};
+var S={prices:new Map(),pricesAt:0,tariffs:null,charges:null,companies:null,companiesAt:0,live:false,agr:{name:"",mk:null,sub:null,src:"",pid:""},year:4000,day:null,showAll:false,q:"",fetching:false};
 
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
@@ -595,7 +596,8 @@ function renderSup(){
     if(diff>150)best.innerHTML="<div class='best'><b>Billigste aftale ved "+fk(yk,0)+" kWh om året: "+esc(b.p.c)+" "+esc(b.p.n)+".</b><br>Du kan spare cirka <b>"+fk(diff,0)+" kr. om året</b> ("+fk(diff/12,0)+" kr. om måneden) på tillæg, abonnement og gebyrer.</div><p class='note' style='margin:10px 0 0'>Tjek bindingsperiode, om aftalen gælder nye kunder, og at udbyderen sælger i Aalborg, før du skifter.</p>";
     else best.innerHTML="<div class='best'><b>Din aftale ligger tæt på det billigste.</b><br>Den billigste fundne aftale ("+esc(b.p.c)+" "+esc(b.p.n)+") sparer højst cirka "+fk(Math.max(diff,0),0)+" kr. om året. Det er sjældent værd at skifte for.</div>";
   }else best.innerHTML="<div class='muted'>Ingen aftaler passer til dette årsforbrug.</div>";
-  var show=S.showAll?rows:rows.slice(0,12),h="";
+  var q=S.q.trim().toLowerCase(),listRows=q?rows.filter(function(r){return (r.p.c+" "+r.p.n).toLowerCase().indexOf(q)>=0;}):rows;
+  var show=(S.showAll||q)?listRows:listRows.slice(0,12),h="";
   if(cur!=null){
     h+="<div class='sup me'><div class='n'>"+esc(S.agr.name||"Din aftale")+" <span class='badge'>Din aftale</span></div><div class='d'>"+fk(cur,0)+" kr./år</div><div class='m'>Tillæg "+fk(S.agr.mk,1)+" øre/kWh · abonnement og gebyrer "+fk(S.agr.sub)+" kr./md. inkl. moms</div></div>";
   }
@@ -607,9 +609,9 @@ function renderSup(){
     h+="<div class='sup'><div class='n'>"+esc(p.c)+" · "+esc(p.n)+bad+"</div><div class='d "+cls+"'>"+(diff==null?"":(same?"Samme pris":(diff>0?"+":"−")+fk(Math.abs(diff),0)+" kr./år"))+"</div><div class='m'>"+meta+
       "<div class='actions' style='margin-top:6px'><button class='btn sm' data-use='"+i+"'>Brug som min aftale</button>"+(/^https?:\/\//.test(p.link)?"<a href='"+esc(p.link)+"' target='_blank' rel='noopener'>Gå til udbyder</a>":"")+"</div></div></div>";
   });
-  list.innerHTML=h||"<div class='muted'>Ingen aftaler.</div>";
+  list.innerHTML=h||"<div class='muted'>"+(q?"Ingen aftaler matcher søgningen.":"Ingen aftaler.")+"</div>";
   Array.prototype.forEach.call(list.querySelectorAll("button[data-use]"),function(bt){bt.onclick=function(){useAsMine(show[+bt.getAttribute("data-use")].p);};});
-  var btn=$("showAll");btn.hidden=rows.length<=12;btn.textContent=S.showAll?"Vis færre":"Vis alle ("+rows.length+")";
+  var btn=$("showAll");btn.hidden=!!q||listRows.length<=12;btn.textContent=S.showAll?"Vis færre":"Vis alle ("+listRows.length+")";
   srcEl.innerHTML=attrib+(S.companiesAt?"<br>Hentet "+fShort.format(S.companiesAt)+" kl. "+hm(S.companiesAt)+". Priser og vilkår kan have ændret sig, så tjek hos udbyderen.":"");
 }
 function renderSrcPris(){
@@ -647,6 +649,7 @@ function init(){
   }
   ["agName","agMk","agSub","agYear"].forEach(function(id){$(id).addEventListener("input",agrInput);});
   $("showAll").onclick=function(){S.showAll=!S.showAll;renderSup();};
+  $("supQ").addEventListener("input",function(){S.q=this.value;renderSup();});
   renderAll();
   refresh(false).then(function(){defaults();renderCharge();});
   setInterval(function(){renderNow();renderCheap();renderChart();},60000);
