@@ -175,7 +175,7 @@ footer a{color:var(--accent)}
     <div class="card">
       <h2>Kan det betale sig at skifte?</h2>
       <div id="best"></div>
-      <p class="note" style="margin:10px 0 0">Spotpris, nettarif, afgifter og moms er ens hos alle elselskaber. Forskellen ligger kun i tillæg, abonnement og gebyrer. Her vises variable aftaler uden fast pris. Aftaler, som Strømligning fraråder eller ikke har kunnet verificere, ligger nederst i listen.</p>
+      <p class="note" style="margin:10px 0 0">Spotpris, nettarif, afgifter og moms er ens hos alle elselskaber. Forskellen ligger kun i tillæg, abonnement og gebyrer. Her vises variable aftaler uden fast pris. Aftaler, som Strømligning fraråder eller ikke har kunnet verificere, introtilbud med midlertidig lav pris, aftaler der kræver en rabataftale og aftaler med usædvanlige priser ligger nederst i listen, og de indgår ikke i anbefalingen.</p>
     </div>
     <div class="card">
       <h2>Alle aftaler</h2>
@@ -316,7 +316,7 @@ function trimCompanies(list){
       if(typeof p.consumptionSurcharge!=="number")return;
       out.push({c:c.name,avoid:!!c.avoid,id:p.id,n:p.name,cs:p.consumptionSurcharge,sub:(p.subscriptionMonthly||0)+(p.feesMonthly||0),
         bind:p.bindingPeriod||"",min:typeof p.minConsumption==="number"?p.minConsumption:null,max:typeof p.maxConsumption==="number"?p.maxConsumption:null,
-        link:p.link||c.link||"",upd:p.updated||"",unv:!!p.unverified});
+        link:p.link||c.link||"",upd:p.updated||"",unv:!!p.unverified,intro:!!p.introductoryOffer,disc:!!p.discountAgreement,odd:p.consumptionSurcharge<0});
     });
   });
   return out;
@@ -327,7 +327,7 @@ function loadCompanies(force){
   return getJson(SL,25000).then(function(list){
     var t=trimCompanies(list);
     if(!t.length)throw new Error("empty");
-    S.companies=t;S.companiesAt=Date.now();save("elpris.companies",{at:S.companiesAt,list:t});
+    S.companies=t;S.companiesAt=Date.now();save("elpris.companies2",{at:S.companiesAt,list:t});
   });
 }
 function refresh(force){
@@ -493,6 +493,7 @@ function useAsMine(p){
 function fillAgr(){
   $("agName").value=S.agr.name||"";$("agMk").value=S.agr.mk==null?"":S.agr.mk;$("agSub").value=S.agr.sub==null?"":S.agr.sub;$("agYear").value=S.year;
 }
+function flagged(p){return p.avoid||p.unv||p.intro||p.disc||p.odd;}
 function renderSup(){
   var list=$("supList"),best=$("best"),srcEl=$("srcLev");
   var attrib="Data provided by Strømligning. <a href='https://stromligning.dk' target='_blank' rel='noopener'>https://stromligning.dk</a>";
@@ -505,10 +506,10 @@ function renderSup(){
   var rows=S.companies.filter(function(p){return (p.min==null||yk>=p.min)&&(p.max==null||yk<=p.max);}).map(function(p){
     var mk=p.cs*100*VAT;return {p:p,mk:mk,cost:yearCost(mk,p.sub)};
   }).sort(function(a,b){
-    var fa=(a.p.avoid||a.p.unv)?1:0,fb=(b.p.avoid||b.p.unv)?1:0; // aftaler med advarsel vises nederst
+    var fa=flagged(a.p)?1:0,fb=flagged(b.p)?1:0; // aftaler med advarsel vises nederst
     return fa-fb||a.cost-b.cost;
   });
-  var ok=rows.filter(function(r){return !r.p.avoid&&!r.p.unv;}),b=ok[0];
+  var ok=rows.filter(function(r){return !flagged(r.p);}),b=ok[0];
   if(cur==null){best.innerHTML="<div class='muted'>Indtast din nuværende aftale ovenfor, så kan appen sammenligne.</div>";}
   else if(b){
     var diff=cur-b.cost;
@@ -521,7 +522,7 @@ function renderSup(){
   }
   show.forEach(function(r,i){
     var p=r.p,diff=cur!=null?r.cost-cur:null,same=diff!=null&&Math.abs(diff)<1,cls=diff==null||same?"":(diff<0?"save":"more");
-    var bad=(p.avoid?"<span class='badge avoid'>Strømligning fraråder</span>":"")+(p.unv?"<span class='badge'>Uverificeret</span>":"")+(p.bind?"<span class='badge'>"+esc(p.bind)+"</span>":"");
+    var bad=(p.avoid?"<span class='badge avoid'>Strømligning fraråder</span>":"")+(p.unv?"<span class='badge'>Uverificeret</span>":"")+(p.intro?"<span class='badge avoid'>Introtilbud, prisen stiger senere</span>":"")+(p.disc?"<span class='badge'>Kræver rabataftale</span>":"")+(p.odd?"<span class='badge avoid'>Usædvanlig pris, tjek hos udbyder</span>":"")+(p.bind?"<span class='badge'>"+esc(p.bind)+"</span>":"");
     var meta="Tillæg "+fk(r.mk,1)+" øre/kWh · abonnement og gebyrer "+fk(p.sub)+" kr./md. · "+fk(r.cost,0)+" kr./år";
     if(p.upd){var d=new Date(p.upd);if(!isNaN(d))meta+=" · opdateret "+fShort.format(d.getTime());}
     h+="<div class='sup'><div class='n'>"+esc(p.c)+" · "+esc(p.n)+bad+"</div><div class='d "+cls+"'>"+(diff==null?"":(same?"Samme pris":(diff>0?"+":"−")+fk(Math.abs(diff),0)+" kr./år"))+"</div><div class='m'>"+meta+
@@ -554,7 +555,7 @@ function init(){
   if(pr&&pr.recs){S.prices=new Map(pr.recs);S.pricesAt=pr.at||0;}
   var tf=load("elpris.tariffs");if(tf&&tf.length)S.tariffs=tf;
   var ch=load("elpris.charges");if(ch&&ch.length)S.charges=ch;
-  var co=load("elpris.companies");if(co&&co.list&&co.list.length){S.companies=co.list;S.companiesAt=co.at||0;}
+  var co=load("elpris.companies2");if(co&&co.list&&co.list.length){S.companies=co.list;S.companiesAt=co.at||0;}
   S.tab="pris";
   Array.prototype.forEach.call(document.querySelectorAll("nav button"),function(b){b.onclick=function(){setTab(b.getAttribute("data-tab"));};});
   $("goAgr").onclick=function(){setTab("lev");$("agMk").focus();};
