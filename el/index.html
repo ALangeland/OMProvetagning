@@ -316,13 +316,46 @@ function simulate(startMs,endMs,kw,cap){
 }
 
 /* ---------- hentning ---------- */
+function countDay(m,day){var n=0;m.forEach(function(v,k){if(dkDate(k)===day)n++;});return n;}
+/* time -> UTC ms for a Danish local date + hour (tests both offsets) */
+function localToMs(day,h){
+  var base=Date.parse(day+"T00:00:00Z")+h*3600000,c=[base-7200000,base-3600000],i;
+  for(i=0;i<c.length;i++)if(dkDate(c[i])===day&&dkHour(c[i])===h)return c[i];
+  return null;
+}
+function fillHourly(m,day,rows){ /* rows: [{ms,kwh}] hourly DKK/kWh ex VAT */
+  var n=0;
+  rows.forEach(function(r){
+    if(r.ms==null||typeof r.kwh!=="number"||isNaN(r.kwh))return;
+    for(var i=0;i<4;i++){var k=r.ms+i*Q;if(!m.has(k)){m.set(k,r.kwh*1000);n++;}}
+  });
+  return n;
+}
+function fallbackDay(m,day){
+  var parts=day.split("-");
+  return getJson("https://elpriser.org/api/prices?area=DK1&mode=spot_ex&date="+day,15000).then(function(j){
+    var arr=Array.isArray(j)?j:(j.prices||j.records||j.data||[]);
+    var rows=arr.map(function(r){return {ms:localToMs(day,Number(r.hour)),kwh:Number(r.price)};});
+    if(!fillHourly(m,day,rows))throw new Error("empty");
+  }).catch(function(){
+    return getJson("https://www.elprisenligenu.dk/api/v1/prices/"+parts[0]+"/"+parts[1]+"-"+parts[2]+"_DK1.json",15000).then(function(j){
+      var rows=j.map(function(r){var ms=Date.parse(r.time_start);return {ms:isNaN(ms)?null:ms,kwh:r.DKK_per_kWh};});
+      fillHourly(m,day,rows);
+    });
+  }).catch(function(){});
+}
 function loadPrices(){
   var t=Date.now(),d=function(ms){return new Date(ms).toISOString().slice(0,10);};
+  var m=new Map(S.prices);
   return getJson(API+"prices?area=DK1&start="+d(t-86400000)+"&end="+d(t+2*86400000)).then(function(j){
-    if(!j.records||!j.records.length)throw new Error("empty");
-    var m=new Map();
-    j.records.forEach(function(r){var ms=Date.parse(r.TimeUTC+"Z");if(!isNaN(ms)&&typeof r.DayAheadPriceDKK==="number")m.set(ms,r.DayAheadPriceDKK);});
-    if(!m.size)throw new Error("empty");
+    (j.records||[]).forEach(function(r){var ms=Date.parse(r.TimeUTC+"Z");if(!isNaN(ms)&&typeof r.DayAheadPriceDKK==="number")m.set(ms,r.DayAheadPriceDKK);});
+  },function(){}).then(function(){
+    var today=dkDate(t),tomorrow=dkDate(t+86400000),jobs=[];
+    if(countDay(m,today)<90)jobs.push(fallbackDay(m,today));
+    if(countDay(m,tomorrow)<90&&dkHour(t)>=13)jobs.push(fallbackDay(m,tomorrow));
+    return Promise.all(jobs);
+  }).then(function(){
+    if(!m.has(slotOf(Date.now())))throw new Error("no today");
     S.prices=m;S.pricesAt=Date.now();S.live=true;
     save("elpris.prices",{at:S.pricesAt,recs:Array.from(m.entries())});
   });
@@ -367,7 +400,7 @@ function loadCompanies(force){
 }
 function refresh(force){
   if(S.fetching)return Promise.resolve();
-  S.fetching=true;
+  S.fetching=true;S.tried=true;
   var job=[loadPrices().catch(function(){S.live=false;}),loadTariffs().catch(function(){}),loadCharges().catch(function(){})];
   if(force||S.tab==="lev"||!S.companies)job.push(loadCompanies(force).catch(function(){S.compErr=true;}));
   return Promise.all(job).then(function(){S.fetching=false;renderStatus();renderAll();},function(){S.fetching=false;});
@@ -376,11 +409,12 @@ function refresh(force){
 /* ---------- status ---------- */
 function renderStatus(){
   var el=$("status"),w=$("warnData"),today=dkDate(Date.now()),has=false;
-  S.prices.forEach(function(v,k){if(dkDate(k)===today)has=true;});
-  if(S.live){el.textContent="Opdateret "+hm(S.pricesAt);el.className="chip live";w.hidden=true;}
+  has=S.prices.has(slotOf(Date.now()));
+  if(S.live&&has){el.textContent="Opdateret "+hm(S.pricesAt);el.className="chip live";w.hidden=true;}
   else if(S.pricesAt){el.textContent="Offline · priser fra "+fShort.format(S.pricesAt)+" kl. "+hm(S.pricesAt);el.className="chip old";
     w.hidden=false;w.textContent="Appen kunne ikke hente nye priser. Du ser de seneste gemte priser"+(has?"":", og de er ikke fra i dag")+". Tjek internetforbindelsen.";}
-  else{el.textContent="Henter priser…";el.className="chip";w.hidden=true;}
+  else if(S.fetching||!S.tried){el.textContent="Henter priser…";el.className="chip";w.hidden=true;}
+  else{el.textContent="Ingen pris";el.className="chip old";w.hidden=false;w.innerHTML="Kunne ikke hente dagens priser lige nu. <button type=\"button\" id=\"retry\">Prøv igen</button>";var rb=$("retry");if(rb)rb.onclick=function(){refresh(true);};}
   $("warnAgr").hidden=S.agr.mk!=null&&S.agr.sub!=null;
 }
 

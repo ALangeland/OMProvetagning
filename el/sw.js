@@ -1,6 +1,6 @@
 // Service worker til Elpris. Gemmer selve appen, så den kan åbnes uden forbindelse.
 // Priser hentes af siden selv og gemmes i browserens lager, ikke her.
-var CACHE = "elpris-v3";
+var CACHE = "elpris-v4";
 var IMGS = ["img/hero.webp", "img/bil.webp", "img/motorcykel.webp", "img/hund.webp"];
 var SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png",
   "fonts/barlow-condensed-latin-600-normal.woff2", "fonts/barlow-condensed-latin-700-normal.woff2", "fonts/barlow-condensed-latin-700-italic.woff2"];
